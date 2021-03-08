@@ -53,6 +53,8 @@ fi
 # FULL {{{1
 # MAIN LINKING {{{2
 
+linking  env/pam           $HOME/.pam_environment
+
 linking  aerc/             $XDG_CONFIG_HOME/aerc
 linking  asoundrc          $XDG_CONFIG_HOME/alsa/asoundrc
 linking  bashrc            $XDG_CONFIG_HOME/bash/bashrc
@@ -104,12 +106,6 @@ linking firefox/userChrome.css  $XDG_DATA_HOME/firefox/chrome/userChrome.css
 
 # "PATCHING" {{{2
 wrappers_dir="$XDG_LOCAL_HOME/bin/_patch"
-# ~misc {{{3
-chmod +x $DIR/_patch/misc/*
-for exe in $DIR/_patch/misc/*; do
-    [ -x "$(command -v $(basename $exe))" ] && linking  "_patch/misc/$(basename $exe)"  "$wrappers_dir/misc/$(basename $exe)"
-done
-
 # XDG Base Dir {{{3
 # WRAPPERS {{{4
 chmod +x $DIR/_patch/xdg_base_dir/wrappers/*

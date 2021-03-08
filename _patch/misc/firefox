@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-
-[ -x "$(command -v apulse)" ] && apulse="--P apulse" || echo "'apulse' is not installed"
-
-. $XDG_LIB_DIR/shell/progwrap.sh
-progwrap_exec $apulse "$@"
