@@ -43,6 +43,10 @@ augroup LSP
           \   'sqls': {
           \     'connections': [
           \       {
+          \         'driver': 'sqlite3',
+          \         'dataSourceName': expand($SQLS_SQLITE_DB),
+          \       },
+          \       {
           \         'driver': 'mysql',
           \         'proto':  'unix',
           \         'user':   expand($SQLS_MYSQL_USER),
@@ -54,6 +58,14 @@ augroup LSP
           \   },
           \ },
           \ 'whitelist': [ 'sql' ]
+          \ })
+  endif
+
+  if executable('texlab')
+    au User lsp_setup call lsp#register_server({
+          \ 'name': 'TexLab',
+          \ 'cmd': {server_info->['texlab']},
+          \ 'whitelist': [ 'tex' ],
           \ })
   endif
 

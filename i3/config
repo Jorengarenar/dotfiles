@@ -1,5 +1,5 @@
 # i3 - config #
-# vim: fdm=marker fen
+# vim: fdm=marker
 
 # GENERAL {{{1
 
@@ -208,7 +208,7 @@ bindsym XF86AudioPlay  exec playerctl play
 bindsym XF86AudioPrev  exec playerctl previous
 
 # Other
-bindsym XF86Explorer exec --no-startup-id i3-msg restart && systemctl suspend
+bindsym XF86Explorer exec --no-startup-id xterm -e "systemctl suspend"
 
 # }}}
 # OTHER {{{2
