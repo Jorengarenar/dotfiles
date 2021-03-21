@@ -5,6 +5,18 @@ let g:netrw_browse_split  = 4         " use the previous window to open file
 let g:netrw_dirhistmax    = 0         " disable history
 let g:netrw_winsize       = -28       " window size
 
+let g:netrw_browsex_viewer = "xdg-open"
+
+function! OpenURLUnderCursor()
+	let uri = expand('<cWORD>')
+	let uri = matchstr(uri, "[a-z]*:\/\/[^ >,;)'\"]*")
+	let uri = substitute(uri, '#', '\\#', '')
+	if uri != ''
+    call job_start(g:netrw_browsex_viewer." ".uri)
+	endif
+endfunction
+"nnoremap <silent> gx :call OpenURLUnderCursor()<CR>
+
 augroup netrw_autocmd
   autocmd!
   autocmd filetype netrw silent! unmap <buffer> <F1>

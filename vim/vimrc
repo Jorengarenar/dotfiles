@@ -129,14 +129,25 @@ endfor
 
 " FUNCTIONS {{{1
 
+function! AppendToSynRule(group, type, addition) abort
+  let x = split(execute("syntax list " . a:group), '\n')
+  let y = index(map(deepcopy(x), 'v:val =~ ".*links to .*"'), 1)
+  if y > 0
+    let y = y-1
+  endif
+  let x = split(join(x[:y]))
+  let x = x[index(x, 'xxx')+1:]
+  execute "syntax clear ".a:group
+  execute "syntax " . a:type . " " .a:group." ". a:addition . " ".join(x)
+endfunction
+
 function! s:GrepRename(expr1, expr2) abort " replace through whole project
   execute 'tabe | lvimgrep /\C\<' . a:expr1 . '\>/j ** | ldo s/\C\<' . a:expr1 . '\>/' . a:expr2 . '/gc | update'
   quit
 endfunction
 
 function! s:FillLine(str, ...) abort " fill line with characters to given column
-  let to_column = get(a:, 1, &tw)
-  let reps = (to_column - col("$")) / len(a:str)
+  let reps = (get(a:, 1, &tw) - col("$")) / len(a:str)
   if reps > 0
     .s/$/\=(' '.repeat(a:str, reps))/
   endif
@@ -177,13 +188,6 @@ function! s:VisSort(isnmbr) range abort " sorts based on visual-block selected p
   let @a = keeprega
 endfun
 
-function! s:VSetSearch(cmdtype) abort " search for selected text, forwards or backwards
-  let temp = @s
-  norm! gv"sy
-  let @/ = '\V' . substitute(escape(@s, a:cmdtype.'\'), '\n', '\\n', 'g')
-  let @s = temp
-endfunction
-
 " FOR STATUS LINE {{{
 
 function! FileEncoding() abort
@@ -216,7 +220,7 @@ endfunction
 
 function! ModifBufs() abort
   let cnt = len(filter(getbufinfo(), 'v:val.changed'))
-  return cnt == 0 ? "" : ( &mod ? "[+". (cnt>1?cnt:"") ."]" : "[".cnt."]" )
+  return cnt == 0 ? "" : (&mod ? "[+". (cnt > 1 ? cnt : "") ."]" : "[".cnt."]")
 endfunction
 
 function! NumOfBufs() abort
@@ -228,7 +232,7 @@ endfunction
 " }}}
 
 " MAPPINGS {{{1
-" Normal mode {{{2
+
 nnoremap ' `
 nnoremap '' ``
 nnoremap <expr> <F4> &virtualedit == "all" ? ":set virtualedit=\<CR>" : ":set virtualedit=all\<CR>"
@@ -240,27 +244,17 @@ nnoremap <Leader>h :nohlsearch<CR>
 nnoremap <Leader>q m"gggqG`"
 nnoremap <Leader>R :call RenameVar(expand('<cword>'))<CR>
 nnoremap <Leader>r :call RenameVar(expand('<cword>'), "")<CR>
-nnoremap <Leader>v vip
 nnoremap <M-S-a> :copen<CR>
 nnoremap <silent> <expr> <F5> g:colors_name == "darkness" ? ":syntax reset <bar> let g:colors_name=''\<CR>" : ":colo darkness\<CR>"
-nnoremap gx :call job_start('xdg-open '.expand("<cfile>"))<CR>
 nnoremap j gj
 nnoremap k gk
 nnoremap zS :echo join(reverse(map(synstack(line('.'), col('.')), 'synIDattr(v:val,"name")')),' ')<CR>
 
-" Insert mode {{{2
-inoremap <expr> <C-o> pumvisible() ? "\<C-n>" : "\<C-o>"
-
-" Terminal mode {{{2
 tnoremap <silent> <C-\><C-\> <C-\><C-n>
 tnoremap <silent> <C-\><C-m> <C-\><C-n>:let b:auto_insert = !b:auto_insert<CR>
 
-" Visual mode {{{2
-xnoremap # :<C-u>call <SID>VSetSearch('?')<CR>?<C-r>=@/<CR><CR>
-xnoremap * :<C-u>call <SID>VSetSearch('/')<CR>/<C-r>=@/<CR><CR>
 vnoremap <Leader>s y:%s//g<Left><Left><C-r>"/
 
-" ### DISABLE {{{2
 imap <Esc>[29~ <nop>
 map  <Esc>[29~ <nop>
 map gh <nop>
@@ -268,8 +262,6 @@ nmap s <nop>
 vmap s <nop>
 
 " OPTIONS {{{1
-
-set t_fd= t_fe= " disable xterm-focus-event
 
 set backup
 set colorcolumn=+1,+21,+31
@@ -318,6 +310,12 @@ set tags+=.git/tags;
 " PLUGINS AND PACKAGES {{{1
 
 runtime plugin/minPlug.vim
+
+let g:minPlug_singleFiles = {
+      \ "fastfold.vim" : [ "plugin",   "https://git.io/JIEo6", "$XDG_CONFIG_HOME/vim" ],
+      \ "repeat.vim"   : [ "autoload", "https://git.io/JmdpI", "$XDG_CONFIG_HOME/vim" ],
+      \ "surround.vim" : [ "plugin",   "https://git.io/JLXyW", "$XDG_CONFIG_HOME/vim" ],
+      \ }
 
 MinPlug ctrlpvim/ctrlp.vim
 MinPlug dense-analysis/ale

@@ -1,17 +1,5 @@
 if &ft !~# '\v<(c|cpp)>' | finish | endif
 
-function! s:append(group, type, addition) abort
-  let x = split(execute("syntax list " . a:group), '\n')
-  let y = index(map(deepcopy(x), 'v:val =~ ".*links to .*"'), 1)
-  if y > 0
-    let y = y-1
-  endif
-  let x = split(join(x[:y]))
-  let x = x[index(x, 'xxx')+1:]
-  execute "syntax clear ".a:group
-  execute "syntax " . a:type . " " .a:group." ". a:addition . " ".join(x)
-endfunction
-
 " REGIONS {{{1
 " Include guards {{{2
 
@@ -35,7 +23,7 @@ hi def link cCaseBadFormat cError
 
 " FOLDING {{{1
 " Parenthesis {{{2
-call s:append("cParen", "region", "fold")
+call AppendToSynRule("cParen", "region", "fold")
 
 " K&R style {{{2
 
