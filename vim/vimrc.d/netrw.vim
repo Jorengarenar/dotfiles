@@ -15,7 +15,7 @@ function! OpenURLUnderCursor()
     call job_start(g:netrw_browsex_viewer." ".uri)
 	endif
 endfunction
-"nnoremap <silent> gx :call OpenURLUnderCursor()<CR>
+nnoremap <silent> gx :call OpenURLUnderCursor()<CR>
 
 augroup netrw_autocmd
   autocmd!
