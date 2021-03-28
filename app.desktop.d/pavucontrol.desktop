@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Name=pavucontrol
+Exec=pavucontrol
+Icon=multimedia-volume-control
+StartupNotify=true
+Type=Application
+Categories=AudioVideo;Audio;Mixer;GTK;

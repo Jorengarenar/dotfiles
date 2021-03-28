@@ -12,6 +12,7 @@ alias grep='grep --color'
 alias i3-exit="i3-msg exit"
 alias i3-relog="sed -i '/autostartedx/d' '$TMPFLAGS' && [ -n '$DISPLAY' ] && i3-msg exit || exit"
 alias icanhazip='curl icanhazip.com'
+alias iwd-restart='sudo systemctl restart iwd.service'
 alias less='less -R'
 alias ls='ls -hF'
 alias mkdir='mkdir -p'

@@ -34,7 +34,7 @@ function! s:init(...) abort
     let comm = a:1
   endif
 
-  let s:st = "'\\V" . comm . "\\.\\{-}"
+  let s:st = "'\\V\\s\\*" . comm . "\\.\\{-}"
   let s:op = s:st . m1
   let s:cl = s:st . m2
   let s:ed = "\\v(\\s.*)?'"

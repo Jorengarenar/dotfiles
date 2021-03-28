@@ -5,7 +5,7 @@ if &ft !~# '\v<(c|cpp)>' | finish | endif
 
 syntax region cIncludeGuarded transparent matchgroup=Dimmer
       \ start = "\v#ifndef \z((.+_H.*_?))\n#define \1"
-      \ end   = "\#endif\ze // \z1"
+      \ end   = "\v#endif\ze /[/*] \z1>"
 
 " Extern "C" {{{2
 
