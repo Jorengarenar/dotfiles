@@ -322,7 +322,7 @@ MinPlug dense-analysis/ale
 MinPlug Jorengarenar/miniSnip
 MinPlug majutsushi/tagbar
 MinPlug mbbill/undotree
-MinPlug prabirshrestha/vim-lsp
+MinPlug natebosch/vim-lsc
 MinPlug puremourning/vimspector
 
 packadd cfilter
@@ -336,6 +336,7 @@ xmap s  <Plug>VSurround
 nmap s  <Plug>Ysurround
 nmap ds <Plug>Dsurround
 nmap cs <Plug>Csurround
+nmap ss <Plug>Yssurround
 
 nmap <M-a> <Plug>(ale_detail)
 nnoremap <F1> :UndotreeToggle<cr>
@@ -348,11 +349,6 @@ let g:ale_disable_lsp     = 1
 let g:ale_echo_msg_format = '[%linter%]: %s'
 let g:ale_set_quickfix    = 1
 let g:ale_set_signs       = 0
-
-let g:lsp_diagnostics_enabled                = g:ale_disable_lsp
-let g:lsp_diagnostics_highlights_delay       = 0
-let g:lsp_diagnostics_signs_enabled          = 0
-let g:lsp_document_code_action_signs_enabled = 0
 
 let g:ctrlp_brief_prompt        = 1
 let g:ctrlp_cache_dir           = $XDG_CACHE_HOME . "/vim/ctrlp"
@@ -398,7 +394,8 @@ hi! link LspWarningHighlight WarningMsg
 
 augroup PLUGINS
   au!
-  autocmd VimEnter * let g:ale_enabled = empty(filter(getqflist(), 'v:val.valid'))
+  autocmd VimEnter * let g:ale_enabled =
+        \ get(g:, "ale_enabled", 0) * empty(filter(getqflist(), 'v:val.valid'))
 augroup END
 
 " Config }}}

@@ -1,8 +1,13 @@
+let g:lsp_diagnostics_enabled                = get(g:, "ale_disable_lsp", 0)
+let g:lsp_diagnostics_highlights_delay       = 0
+let g:lsp_diagnostics_signs_enabled          = 0
+let g:lsp_document_code_action_signs_enabled = 0
+
 function! s:lsp_init() abort
   setlocal omnifunc=lsp#complete
   if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
   nmap <buffer> gd <plug>(lsp-definition)
-  nmap <buffer> <Leader><Leader>r :w<CR><Plug>(lsp-rename)
+  nmap <buffer> gR <Plug>(lsp-rename)
 endfunction
 
 augroup LSP
@@ -19,19 +24,19 @@ augroup LSP
           \ })
   endif
 
-  if executable('pyls')
-    au User lsp_setup call lsp#register_server({
-          \ 'name': 'pyls',
-          \ 'cmd': {server_info->['pyls']},
-          \ 'whitelist': [ 'python' ],
-          \ })
-  endif
-
   if executable('jdtls')
     au User lsp_setup call lsp#register_server({
           \ 'name': 'eclipse.jdt.ls',
           \ 'cmd': {server_info->['jdtls']},
           \ 'whitelist': [ 'java' ],
+          \ })
+  endif
+
+  if executable('pyls')
+    au User lsp_setup call lsp#register_server({
+          \ 'name': 'pyls',
+          \ 'cmd': {server_info->['pyls']},
+          \ 'whitelist': [ 'python' ],
           \ })
   endif
 

@@ -2,6 +2,109 @@
 
 if !executable('sqls') | finish | endif
 
+" LSP helpers {{{1
+
+if     get(g:, "lsp_loaded", 0)
+
+  function! s:lsp_uri() abort
+      return get(lsp#get_text_document_identifier(), 'uri', v:null)
+  endfunction
+
+  function! s:lsp_errmsg(msg) abort
+    call lsp#utils#error(a:msg)
+  endfunction
+
+  function! s:lsp_exec(method, params, callback, server_name, sync) abort
+      call lsp#send_request(a:server_name, {
+            \   'method': a:method,
+            \   'params': a:params,
+            \   'sync': a:sync,
+            \   'on_notification': a:callback,
+            \ })
+  endfunction
+
+  function! s:lsp_is_error(o) abort
+    return lsp#client#is_error(o)
+  endfunction
+
+  function! s:lsp_get_resp(data)
+    return a:data['response']['result']
+  endfunction
+
+  function! s:lsp_get_recent_visual_range() abort
+    return lsp#utils#range#_get_recent_visual_range()
+  endfunction
+
+elseif get(g:, "loaded_lsc", 0)
+
+  function! s:lsp_uri() abort
+      return lsc#uri#documentUri()
+  endfunction
+
+  function! s:lsp_errmsg(msg) abort
+    call lsc#message#error(a:msg)
+  endfunction
+
+  function! s:lsp_exec(method, params, callback, ...) abort
+    if has_key(g:lsc_server_commands, &filetype)
+      call lsc#server#userCall(a:method, a:params, a:callback)
+    endif
+  endfunction
+
+  function! s:lsp_is_error(...) abort
+    return v:false
+  endfunction
+
+  function! s:lsp_get_resp(data)
+    return a:data
+  endfunction
+
+  " recent visual range {{{
+  function! s:to_char(expr, lnum, col) abort
+    let l:lines = getbufline(a:expr, a:lnum)
+    if l:lines == []
+      if type(a:expr) != v:t_string || !filereadable(a:expr)
+        " invalid a:expr
+        return a:col - 1
+      endif
+      " a:expr is a file that is not yet loaded as a buffer
+      let l:lines = readfile(a:expr, '', a:lnum)
+    endif
+    let l:linestr = l:lines[-1]
+    return strchars(strpart(l:linestr, 0, a:col - 1))
+  endfunction
+
+  function! s:vim_to_lsp(expr, pos) abort
+    return {
+          \   'line': a:pos[0] - 1,
+          \   'character': s:to_char(a:expr, a:pos[0], a:pos[1])
+          \ }
+  endfunction
+
+  function! s:lsp_get_recent_visual_range() abort
+    let l:start_pos = getpos("'<")[1 : 2]
+    let l:end_pos = getpos("'>")[1 : 2]
+    let l:end_pos[1] += 1 " To exclusive
+
+    " Fix line selection.
+    let l:end_line = getline(l:end_pos[0])
+    if l:end_pos[1] > strlen(l:end_line)
+      let l:end_pos[1] = strlen(l:end_line) + 1
+    endif
+
+    let l:range = {}
+    let l:range['start'] = s:vim_to_lsp('%', l:start_pos)
+    let l:range['end'] = s:vim_to_lsp('%', l:end_pos)
+    return l:range
+  endfunction
+  " }}}
+
+else
+  finish
+endif
+
+" sqls.vim {{{1
+
 let s:commands = {}
 
 function! s:_execute_query(selection) abort
@@ -16,13 +119,13 @@ function! s:execute_query(mode) abort
   let l:args = {
         \   'server_name': 'sqls',
         \   'command_name': 'executeQuery',
-        \   'command_args': [get(lsp#get_text_document_identifier(), 'uri', v:null)],
+        \   'command_args': [s:lsp_uri()],
         \   'callback_func': 's:handle_preview',
         \   'sync': v:false,
         \   'bufnr': bufnr('%'),
         \ }
   if a:mode ==# 'v'
-    let l:args['command_range'] = lsp#utils#range#_get_recent_visual_range()
+    let l:args['command_range'] = s:lsp_get_recent_visual_range()
   endif
   call s:lsp_execute_command(args)
 endfunction
@@ -39,13 +142,13 @@ function! s:execute_query_vertical(mode) abort
   let l:args = {
         \   'server_name': 'sqls',
         \   'command_name': 'executeQuery',
-        \   'command_args': [get(lsp#get_text_document_identifier(), 'uri', v:null), '-show-vertical'],
+        \   'command_args': [s:lsp_uri(), '-show-vertical'],
         \   'callback_func': 's:handle_preview',
         \   'sync': v:false,
         \   'bufnr': bufnr('%'),
         \ }
   if a:mode ==# 'v'
-    let l:args['command_range'] = lsp#utils#range#_get_recent_visual_range()
+    let l:args['command_range'] = s:lsp_get_recent_visual_range()
   endif
   call s:lsp_execute_command(args)
 endfunction
@@ -142,27 +245,22 @@ function! s:lsp_execute_command(params) abort
             \   'command': l:command,
             \ })
     catch /.*/
-      call lsp#utils#error(printf('Execute command failed: %s', string(a:params)))
+      call s:lsp_errmsg(printf('Execute command failed: %s', string(a:params)))
     endtry
     return
   endif
 
   " execute command on server.
   if !empty(l:server_name)
-    call lsp#send_request(l:server_name, {
-          \   'method': 'workspace/executeCommand',
-          \   'params': l:command,
-          \   'sync': l:sync,
-          \   'on_notification': function(l:callback_func, [l:server_name, l:command]),
-          \ })
+    call s:lsp_exec( 'workspace/executeCommand', l:command, function(l:callback_func, [l:server_name, l:command]), l:server_name, l:sync)
   endif
   echo 'Do ' . l:command_name
 endfunction
 
 
 function! s:handle_no_preview(server_name, command, data) abort
-  if lsp#client#is_error(a:data['response'])
-    call lsp#utils#error('Execute command failed on ' . a:server_name . ': ' . string(a:command) . ' -> ' . string(a:data))
+  if s:lsp_is_error(a:data['response'])
+    call s:lsp_errmsg('Execute command failed on ' . a:server_name . ': ' . string(a:command) . ' -> ' . string(a:data))
     return
   endif
 
@@ -170,12 +268,12 @@ function! s:handle_no_preview(server_name, command, data) abort
 endfunction
 
 function! s:handle_preview(server_name, command, data) abort
-  if lsp#client#is_error(a:data['response'])
-    call lsp#utils#error('Execute command failed on ' . a:server_name . ': ' . string(a:command) . ' -> ' . string(a:data))
+  if s:lsp_is_error(a:data['response'])
+    call s:lsp_errmsg('Execute command failed on ' . a:server_name . ': ' . string(a:command) . ' -> ' . string(a:data))
     return
   endif
 
-  call s:open_preview_buffer(a:data['response']['result'], 'LSP ExecuteCommand')
+  call s:open_preview_buffer(s:lsp_get_resp(a:data), 'LSP ExecuteCommand')
   echo get(a:command, 'command', '') . ' Done'
 endfunction
 
@@ -232,6 +330,8 @@ function! s:get_selection_pos(type) abort
   return l:start_pos + l:end_pos
 endfunction
 
+
+" commands & mappings {{{1
 
 command! -range SqlsExecuteQuery call s:_execute_query(<range> != 0)
 command! -range SqlsExecuteQueryVertical call s:_execute_query_vertical(<range> != 0)
