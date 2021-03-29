@@ -1,7 +1,11 @@
-let g:lsp_diagnostics_enabled                = get(g:, "ale_disable_lsp", 0)
+let g:lsp_diagnostics_enabled                = 1
+let g:lsp_diagnostics_echo_cursor            = g:lsp_diagnostics_enabled
 let g:lsp_diagnostics_highlights_delay       = 0
 let g:lsp_diagnostics_signs_enabled          = 0
 let g:lsp_document_code_action_signs_enabled = 0
+
+hi! link LspErrorHighlight   Error
+hi! link LspWarningHighlight WarningMsg
 
 function! s:lsp_init() abort
   setlocal omnifunc=lsp#complete

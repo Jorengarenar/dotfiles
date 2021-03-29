@@ -208,14 +208,9 @@ function! FileSize() abort
 endfunction
 
 function! IssuesCount() abort
-  if get(g:, 'ale_enabled', 0)
-    let l:counts = ale#statusline#Count(bufnr(''))
-    let l:all_errors = l:counts.error + l:counts.style_error
-    let l:all_non_errors = l:counts.total - l:all_errors
-    return "*".all_errors."E ".all_non_errors."w*"
-  else
-    return "*".len(filter(getqflist(), 'v:val.valid'))." issues*"
-  endif
+  let l:errors   = filter(getqflist(), 'v:val.type == "E"')
+  let l:warnings = filter(getqflist(), 'v:val.type == "W"')
+  return "*".len(l:errors)."E ".len(warnings)."w*"
 endfunction
 
 function! ModifBufs() abort
@@ -318,7 +313,6 @@ let g:minPlug_singleFiles = {
       \ }
 
 MinPlug ctrlpvim/ctrlp.vim
-MinPlug dense-analysis/ale
 MinPlug Jorengarenar/miniSnip
 MinPlug majutsushi/tagbar
 MinPlug mbbill/undotree
@@ -340,15 +334,9 @@ nmap ss <Plug>Yssurround
 
 nmap <M-a> <Plug>(ale_detail)
 nnoremap <F1> :UndotreeToggle<cr>
-nnoremap <F2> :ALEToggle<CR>
 nnoremap <Leader>t :Tagbar<CR>
 
 " Options {{{
-
-let g:ale_disable_lsp     = 1
-let g:ale_echo_msg_format = '[%linter%]: %s'
-let g:ale_set_quickfix    = 1
-let g:ale_set_signs       = 0
 
 let g:ctrlp_brief_prompt        = 1
 let g:ctrlp_cache_dir           = $XDG_CACHE_HOME . "/vim/ctrlp"
@@ -386,17 +374,6 @@ let g:miniSnip_extends = {
 
 hi! link TagbarNestedKind Comment
 hi! link TagbarType Comment
-
-hi! link ALEError            Error
-hi! link ALEWarning          WarningMsg
-hi! link LspErrorHighlight   Error
-hi! link LspWarningHighlight WarningMsg
-
-augroup PLUGINS
-  au!
-  autocmd VimEnter * let g:ale_enabled =
-        \ get(g:, "ale_enabled", 0) * empty(filter(getqflist(), 'v:val.valid'))
-augroup END
 
 " Config }}}
 

@@ -1,9 +1,13 @@
 let g:lsc_enable_autocomplete  = v:false
-let g:lsc_change_debounce_time = 0
 
-let g:lsc_auto_map = { 'defaults': v:true, 'Completion': 'omnifunc' }
+let g:lsc_auto_map = { "defaults": v:true,
+      \ "ShowHover": "gK",
+      \ "Completion": "omnifunc"
+      \ }
 
-" Servers {{{
+hi! link lscDiagnosticWarning  WarningMsg
+
+" Servers {{{1
 
 let s:svrs = {}
 
@@ -23,18 +27,18 @@ if executable("ccls")
   let s:svrs["cpp"] = s:ccls
 endif
 
-if executable('jdtls')
+if executable("jdtls")
   let s:svrs["java"] = {
         \ "name": "eclipse.jdt.ls",
         \ "command": "jdtls",
         \ }
 endif
 
-if executable('pyls')
+if executable("pyls")
   let s:svrs["python"] = "pyls"
 endif
 
-if executable('sqls')
+if executable("sqls")
   let s:sqls = {
         \   "command": "sqls",
         \   "workspace_config": {
@@ -60,7 +64,7 @@ if executable('sqls')
   let s:svrs["sql"] = s:sqls
 endif
 
-if executable('texlab')
+if executable("texlab")
   let s:svrs["tex"] = "texlab"
 endif
 
@@ -73,3 +77,25 @@ for ft in keys(s:svrs) " suppress_stderr
 endfor
 
 let g:lsc_server_commands = s:svrs
+
+
+" Other {{{1
+
+function! s:init() abort
+  if !get(g:, "loaded_lsc", 0) | return | endif
+
+  function! s:init2() abort
+    if empty(filter(getqflist(), 'v:val.valid'))
+      LSClientAllDiagnostics
+      if empty(filter(getqflist(), 'v:val.valid')) | quit | endif
+    endif
+  endfunction
+
+  nnoremap <buffer> <F2> :LSClientAllDiagnostics<CR>
+  autocmd VimEnter <buffer> call s:init2()
+
+endfunction
+
+for ft in keys(s:svrs)
+  exec "autocmd FileType " . ft . " call s:init()"
+endfor
