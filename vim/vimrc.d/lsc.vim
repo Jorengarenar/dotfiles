@@ -28,10 +28,7 @@ if executable("ccls")
 endif
 
 if executable("jdtls")
-  let s:svrs["java"] = {
-        \ "name": "eclipse.jdt.ls",
-        \ "command": "jdtls",
-        \ }
+  let s:svrs["java"] = "jdtls"
 endif
 
 if executable("pyls")
@@ -69,33 +66,28 @@ if executable("texlab")
 endif
 
 
-for ft in keys(s:svrs) " suppress_stderr
-  if type(s:svrs[ft]) == v:t_string
-    let s:svrs[ft] = { "command": s:svrs[ft] }
-  endif
-  let s:svrs[ft]['suppress_stderr'] = v:true
-endfor
+call map(s:svrs, {_,val -> type(val) == v:t_string ? { "command": val } : val})
+call map(s:svrs, {_,val -> extend(val, {"suppress_stderr": v:true})})
 
 let g:lsc_server_commands = s:svrs
-
 
 " Other {{{1
 
 function! s:init() abort
   if !get(g:, "loaded_lsc", 0) | return | endif
 
-  function! s:init2() abort
-    if empty(filter(getqflist(), 'v:val.valid'))
-      LSClientAllDiagnostics
-      if empty(filter(getqflist(), 'v:val.valid')) | quit | endif
-    endif
-  endfunction
-
   nnoremap <buffer> <F2> :LSClientAllDiagnostics<CR>
-  autocmd VimEnter <buffer> call s:init2()
+
+  autocmd VimEnter <buffer>
+        \  if empty(filter(getqflist(), 'v:val.valid'))
+        \|   exec "LSClientAllDiagnostics" | q
+        \| endif
+
+  autocmd VimLeavePre <buffer> exec "LSClientDisable" | sleep 100m
 
 endfunction
 
-for ft in keys(s:svrs)
-  exec "autocmd FileType " . ft . " call s:init()"
-endfor
+augroup LSC_
+  autocmd!
+  exec "autocmd FileType " . join(keys(s:svrs), ",") . " call s:init()"
+augroup END
