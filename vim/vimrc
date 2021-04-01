@@ -53,7 +53,6 @@ colorscheme darkness
 " COMMANDS {{{1
 
 command! -nargs=* GrepRename call <SID>GrepRename(<f-args>)
-command! -nargs=* TermDebug normal! :Termdebug <args><CR><C-w>K<C-w>j<C-w>L
 command! -nargs=+ FillLine call <SID>FillLine(<f-args>)
 command! -nargs=+ Grep execute "lvimgrep /".<q-args>."/j **"
 command! -nargs=? -bang Spelling setlocal spell<bang> spelllang=<args>
@@ -239,7 +238,7 @@ nnoremap <Leader>h :nohlsearch<CR>
 nnoremap <Leader>q m"gggqG`"
 nnoremap <Leader>R :call RenameVar(expand('<cword>'))<CR>
 nnoremap <Leader>r :call RenameVar(expand('<cword>'), "")<CR>
-nnoremap <M-S-a> :copen<CR>
+nnoremap <M-a> :copen<CR>
 nnoremap <silent> <expr> <F5> g:colors_name == "darkness" ? ":syntax reset <bar> let g:colors_name=''\<CR>" : ":colo darkness\<CR>"
 nnoremap j gj
 nnoremap k gk
@@ -306,11 +305,12 @@ set tags+=.git/tags;
 
 runtime plugin/minPlug.vim
 
-let g:minPlug_singleFiles = {
-      \ "fastfold.vim" : [ "plugin",   "https://git.io/JIEo6", "$XDG_CONFIG_HOME/vim" ],
-      \ "repeat.vim"   : [ "autoload", "https://git.io/JmdpI", "$XDG_CONFIG_HOME/vim" ],
-      \ "surround.vim" : [ "plugin",   "https://git.io/JLXyW", "$XDG_CONFIG_HOME/vim" ],
-      \ }
+let g:minPlug_singleFiles = [
+      \   [ "autoload/repeat.vim", "https://git.io/JmdpI", "$XDG_CONFIG_HOME/vim" ],
+      \   [ "plugin/fastfold.vim", "https://git.io/JIEo6", "$XDG_CONFIG_HOME/vim" ],
+      \   [ "plugin/surround.vim", "https://git.io/JLXyW", "$XDG_CONFIG_HOME/vim" ],
+      \   [ "syntax/tex.vim",      "https://git.io/JYBDH", "$XDG_CONFIG_HOME/vim" ],
+      \ ]
 
 MinPlug ctrlpvim/ctrlp.vim
 MinPlug Jorengarenar/miniSnip
@@ -321,7 +321,6 @@ MinPlug puremourning/vimspector
 
 packadd cfilter
 packadd matchit
-packadd termdebug
 source  $VIMRUNTIME/ftplugin/man.vim
 
 " Config {{{
@@ -332,7 +331,6 @@ nmap ds <Plug>Dsurround
 nmap cs <Plug>Csurround
 nmap ss <Plug>Yssurround
 
-nmap <M-a> <Plug>(ale_detail)
 nnoremap <F1> :UndotreeToggle<cr>
 nnoremap <Leader>t :Tagbar<CR>
 

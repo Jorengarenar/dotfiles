@@ -22,10 +22,10 @@ fu! s:install(b) abort
     exe "pa ".name
   endfor
   sil! helpt ALL
-  for [ name, o ] in items(get(g:, "minPlug_singleFiles", {}))
-    if get(g:, "minPlug_echo", 0) | echo "file: ".o[0]."/".name | endif
-    let dir = (exists("o[2]") ? o[2] : packDir."/start/singleFiles")."/".o[0]
-    call system("curl --create-dirs -o ".dir."/".name." -L ".o[1])
+  for f in get(g:, "minPlug_singleFiles", [])
+    let dir = exists("f[2]") ? f[2] : packDir."/start/singleFiles"
+    if get(g:, "minPlug_echo", 0) | echo "file: "dir."/".f[0] | endif
+    call system("curl --create-dirs -o ".dir."/".f[0]." -L ".f[1])
   endfor
   ec "minPlug: DONE"
 endf
