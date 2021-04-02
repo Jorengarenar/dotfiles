@@ -1,3 +1,13 @@
-runtime ftplugin/plaintex.vim
+let g:tex_fold_enabled = 1
+setlocal foldmethod=syntax
 
-let b:ale_linters_ignore = [ "lacheck" ]
+let g:tex_fold_envs = ""
+      \ ." algorithm"
+      \ ." align"
+      \ ." enumerate"
+      \ ." equation"
+      \ ." figure"
+      \ ." gather"
+      \ ." itemize"
+      \ ." tikzpicture"
+      \ ." verbatim"
