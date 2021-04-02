@@ -6,6 +6,9 @@
 # Source env variables
 . $XDG_CONFIG_HOME/env/variables
 
+# History size
+export HISTSIZE=5000
+
 # Source local additional shell config
 [ -f $XDG_AUX_HOME/shell ] && . $XDG_AUX_HOME/shell
 

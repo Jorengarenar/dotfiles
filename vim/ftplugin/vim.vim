@@ -1,5 +1,6 @@
 let g:vimsyn_folding="aflmpPrt"
 setlocal foldmethod=syntax
+setlocal tabstop=2
 
 " ColorDemo - preview of Vim 256 colors
 function! ColorDemo() abort

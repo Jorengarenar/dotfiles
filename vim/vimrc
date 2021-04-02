@@ -21,53 +21,128 @@ set backupdir=$XDG_CACHE_HOME/vim/backup | call mkdir(&backupdir, 'p', 0700)
 set directory=$XDG_CACHE_HOME/vim/swap   | call mkdir(&directory, 'p', 0700)
 set undodir=$XDG_CACHE_HOME/vim/undo     | call mkdir(&undodir,   'p', 0700)
 
-if !has('nvim') " Neovim has its own special location
-  set viminfofile=$XDG_CACHE_HOME/vim/viminfo
-endif
+if !has('nvim') | set viminfofile=$XDG_CACHE_HOME/vim/viminfo | endif
 
 " BASICS {{{1
 
 set nocompatible
-
 filetype plugin indent on
-set backspace=indent,eol,start
 syntax enable
-
-" "Force" Python3 (helpful for plugins)
-if has('python3')
-  python3 #
-endif
-
 silent! helptags ALL " genereate help tags
-
-" COLORSCHEME {{{1
-
-augroup colors
-  au!
-  au ColorScheme darkness hi cmakeCommand  cterm=bold
-  au ColorScheme darkness hi Dimmer        cterm=italic ctermfg=245
-augroup END
-
 colorscheme darkness
 
 " COMMANDS {{{1
 
-command! -nargs=* GrepRename call <SID>GrepRename(<f-args>)
-command! -nargs=+ FillLine call <SID>FillLine(<f-args>)
-command! -nargs=+ Grep execute "lvimgrep /".<q-args>."/j **"
-command! -nargs=? -bang Spelling setlocal spell<bang> spelllang=<args>
-command! -range -nargs=+ Align <line1>,<line2>!column -Lts'<args>' -o'<args>'
-command! -range -nargs=0 -bang VisSort sil! keepj <line1>,<line2>call <SID>VisSort(<bang>0)
-command! -range=% Sort normal :<line1>,<line2>sort i<CR>
-command! Book setlocal nonumber wrap columns=90 colorcolumn= laststatus=0
-command! ExecCurrentLine normal :.w !sh<CR>
-command! GB call setbufvar(winbufnr(popup_atcursor(systemlist("cd " . shellescape(fnamemodify(resolve(expand('%:p')), ":h")) . " && git log --no-merges -n 1 -L " . shellescape(line("v") . "," . line(".") . ":" . resolve(expand("%:p")))), { "padding": [1,1,1,1], "pos": "botleft", "wrap": 0 })), "&filetype", "git")
-command! SortBlock :normal! vip:sort i<CR>
-command! SudoW execute 'silent! write !sudo tee % >/dev/null' | edit!
-command! Term vertical terminal ++noclose
-command! Todo lvimgrep "\<TODO\>" %
+com! -range -nargs=+  Align            <line1>,<line2>!column -Lts'<args>' -o'<args>'
+com!                  ExecCurrentLine  normal :.w !sh<CR>
+com! -nargs=1         FillLine         exec "FillToColumn" <q-args> &tw
+com! -nargs=+         FillToColumn     exec {str,r -> ".s/$/ ".repeat(str, (r-col("$"))/len(str))}(<f-args>) | noh
+com! -nargs=+         Grep             exec "lvimgrep /".<q-args>."/j **"
+com! -nargs=+         GrepRename       exec {a,b -> 'tabe | lv /\C\<' . a . '\>/j ** | ldo s/\C\<' . a . '\>/' . b . '/gc | up'}(<f-args>) | q
+com! -range=%         Sort             normal :<line1>,<line2>sort i<CR>
+com!                  SortBlock        normal! vip:sort i<CR>
+com! -nargs=? -bang   Spelling         setlocal spell<bang> spelllang=<args>
+com!                  SudoW            exec 'silent! write !sudo tee % >/dev/null' | edit!
+com!                  SyntaxStack      echo join(reverse(map(synstack(line('.'), col('.')), 'synIDattr(v:val,"name")')),' ')
+com! -range           VisSort          sil! keepj <line1>,<line2>call <SID>VisSort()
 
-" FORMATTING {{{1
+" FUNCTIONS {{{1
+
+function! AppendToSynRule(group, type, addition) abort
+  let x = split(execute("syntax list " . a:group), '\n')
+  let y = index(map(deepcopy(x), 'v:val =~ ".*links to .*"'), 1)
+  let y = y > 0 ? y-1 : y
+  let x = split(join(x[:y]))
+  let x = x[index(x, 'xxx')+1:]
+  execute "syntax clear ".a:group
+  execute "syntax " . a:type . " " .a:group." ". a:addition . " ".join(x)
+endfunction
+
+function! MyFoldText() abort
+  return "+-" . v:folddashes . " "
+        \ . printf("%3d", v:foldend - v:foldstart + 1) . " lines: "
+        \ . trim(substitute(getline(v:foldstart), split(&l:fmr, ',')[0] . '\d\=', '', '')) . " "
+endfunction
+
+function! s:VisSort() range abort " sorts based on visual-block selected portion of the lines
+  if visualmode() != "\<C-v>"
+    exec "sil! ".a:firstline.",".a:lastline."sort i"
+    return
+  endif
+  let [ firstline, lastline ] = [ line("'<"), line("'>") ]
+  let old_a  = @a
+  silent normal! gv"ay
+  '<,'>s/^/@@@/
+  silent! keepjumps normal! '<0"aP
+  silent! keepj '<,'>sort i
+  execute "sil! keepj ".firstline.",".lastline.'s/^.\{-}@@@//'
+  let @a = old_a
+endfun
+
+" MAPPINGS {{{1
+
+nnoremap ' `
+nnoremap <expr> <F4> &ve == "all" ? ":set ve=\<CR>" : ":set ve=all\<CR>"
+nnoremap <F3> :set cursorline! cursorcolumn!<CR>
+nnoremap <Leader>= gg=G``
+nnoremap <Leader>b :bnext<CR>
+nnoremap <Leader>h :nohlsearch<CR>
+nnoremap <Leader>q m"gggqG`"
+nnoremap <Leader>r :exec {o -> {n -> n != "" ? '%s/\C\<' . o . '\>/' . n . '/g' : ''}(input(o." > ", o))}(expand('<cword>'))<CR>
+nnoremap <M-a> :copen<CR>
+nnoremap <silent> <expr> <F5> g:colors_name == "darkness" ? ":colo colorUp\<CR>" : ":colo darkness\<CR>"
+nnoremap j gj
+nnoremap k gk
+
+inoremap <expr> <C-o> pumvisible() ? "\<C-n>" : "\<C-o>"
+
+tnoremap <silent> <C-\><C-\> <C-\><C-n>
+tnoremap <silent> <C-\><C-m> <C-\><C-n>:let b:auto_insert = !b:auto_insert<CR>
+
+imap <Esc>[29~ <nop>
+map  <Esc>[29~ <nop>
+map gh <nop>
+
+" OPTIONS {{{1
+
+set backspace=indent,eol,start
+set backup
+set colorcolumn=+1,+21,+31
+set complete+=kspell
+set foldtext=MyFoldText()
+set hidden
+set hlsearch
+set ignorecase
+set incsearch
+set laststatus=2
+set modeline nomodelineexpr
+set nowrap
+set number
+set scrolloff=5
+set sessionoptions=blank,buffers,folds,tabpages,winsize
+set shortmess+=I
+set showcmd
+set smartcase
+set splitbelow splitright
+set switchbuf=usetab
+set title
+set undofile
+set wildmenu wildmode=full
+
+set completeopt=menuone,noinsert,noselect
+set omnifunc=syntaxcomplete#Complete
+set pumheight=20
+
+if has('nvim')
+  set guicursor=n-v-c-sm-i-r-ci-ve-cr-o:block " setting a:block breaks blinking
+  set wildoptions-=pum " don't use popupmenu for wildmode completion
+endif
+
+set foldmethod=indent
+set nofoldenable
+
+set path=**,./
+set tags+=.git/tags;
 
 augroup FORMATOPTIONS
   autocmd!
@@ -86,220 +161,6 @@ set shiftwidth=0   " If 0, then uses value of 'tabstop'
 set softtabstop=-1 " If negative, then uses 'shiftwidth' (which can use 'tabstop')
 set tabstop=4
 set textwidth=79
-
-" For thise filetypes set 'tabstop' to 2
-execute "autocmd FileType ".
-      \   "arduino"           .",".
-      \   "html,xhtml,xml"    .",".
-      \   "*css"              .",".
-      \   "javascript,json"   .",".
-      \   "cmake"             .",".
-      \   "lua"               .",".
-      \   "markdown"          .",".
-      \   "vim"               .",".
-      \ " setlocal tabstop=2"
-
-" For thise filetypes set 'tabstop' to 3
-execute "autocmd FileType ".
-      \   "ada"                .",".
-      \   "plaintex,tex"       .",".
-      \ " setlocal tabstop=3"
-
-let s:formatprg_for_filetype = {
-      \ "arduino"     : "uncrustify --l CPP base kr mb stroustrup 1tbs 2sw",
-      \ "c"           : "uncrustify --l C base kr mb",
-      \ "cpp"         : "uncrustify --l CPP base kr mb stroustrup",
-      \ "cmake"       : "cmake-format --command-case lower -",
-      \ "css"         : "css-beautify -s 2 --space-around-combinator",
-      \ "go"          : "gofmt",
-      \ "html"        : "tidy -q -w -i --show-warnings 0 --show-errors 0 --tidy-mark no",
-      \ "java"        : "uncrustify --l JAVA base kr mb java",
-      \ "javascript"  : "js-beautify -s 2",
-      \ "json"        : "js-beautify -s 2",
-      \ "python"      : "autopep8 -",
-      \ "sql"         : "sqlformat -k upper -r -",
-      \ "xhtml"       : "tidy -asxhtml -q -m -w -i --show-warnings 0 --show-errors 0 --tidy-mark no --doctype loose",
-      \ "xml"         : "tidy -xml -q -m -w -i --show-warnings 0 --show-errors 0 --tidy-mark no",
-      \}
-
-for [ft, fp] in items(s:formatprg_for_filetype)
-  execute "autocmd FileType ".ft." let &l:formatprg=\"".fp."\" | setlocal formatexpr="
-endfor
-
-" FUNCTIONS {{{1
-
-function! AppendToSynRule(group, type, addition) abort
-  let x = split(execute("syntax list " . a:group), '\n')
-  let y = index(map(deepcopy(x), 'v:val =~ ".*links to .*"'), 1)
-  if y > 0
-    let y = y-1
-  endif
-  let x = split(join(x[:y]))
-  let x = x[index(x, 'xxx')+1:]
-  execute "syntax clear ".a:group
-  execute "syntax " . a:type . " " .a:group." ". a:addition . " ".join(x)
-endfunction
-
-function! s:GrepRename(expr1, expr2) abort " replace through whole project
-  execute 'tabe | lvimgrep /\C\<' . a:expr1 . '\>/j ** | ldo s/\C\<' . a:expr1 . '\>/' . a:expr2 . '/gc | update'
-  quit
-endfunction
-
-function! s:FillLine(str, ...) abort " fill line with characters to given column
-  let reps = (get(a:, 1, &tw) - col("$")) / len(a:str)
-  if reps > 0
-    .s/$/\=(' '.repeat(a:str, reps))/
-  endif
-endfunction
-
-function! MyFoldText() abort
-  let text = getline(v:foldstart)
-  let text = substitute(text, '^\s*', '', '')
-  let text = substitute(text, split(&l:fmr, ',')[0] . '\d\=', '', 'g')
-  return "+-" . v:folddashes . " "
-        \ . printf("%3d", v:foldend - v:foldstart + 1) . " lines: "
-        \ . text
-endfunction
-
-function! RenameVar(old, ...) abort
-  let newName = input( a:old . " -> ", get(a:, 1, a:old))
-  if !empty(newName)
-    execute "%s/\\C\\<" . a:old . "\\>/" . newName . "/g"
-  endif
-endfunction
-
-function! s:VisSort(isnmbr) range abort " sorts based on visual-block selected portion of the lines
-  if visualmode() != "\<c-v>"
-    execute "silent! ".a:firstline.",".a:lastline."sort i"
-    return
-  endif
-  let firstline = line("'<")
-  let lastline  = line("'>")
-  let keeprega  = @a
-  silent normal! gv"ay
-  '<,'>s/^/@@@/
-  silent! keepjumps normal! '<0"aP
-  if a:isnmbr
-    silent! '<,'>s/^\s\+/\=substitute(submatch(0),' ','0','g')/
-  endif
-  execute "sil! keepj '<,'>sort i"
-  execute "sil! keepj ".firstline.",".lastline.'s/^.\{-}@@@//'
-  let @a = keeprega
-endfun
-
-" FOR STATUS LINE {{{
-
-function! FileEncoding() abort
-  return (&fenc == "" ? &enc : &fenc).((exists("+bomb") && &bomb) ? " BOM" : "")
-endfunction
-
-function! FileSize() abort
-  let bytes = getfsize(expand(@%))
-  if (bytes >= 1024*1024)
-    return printf('~%.1f MiB', bytes/(1024*1024.0))
-  elseif (bytes >= 1024)
-    return printf('~%.1f KiB', bytes/1024.0)
-  elseif (bytes <= 0)
-    return '0 B'
-  else
-    return bytes . ' B'
-  endif
-endfunction
-
-function! IssuesCount() abort
-  let l:errors   = filter(getqflist(), 'v:val.type == "E"')
-  let l:warnings = filter(getqflist(), 'v:val.type == "W"')
-  return "*".len(l:errors)."E ".len(warnings)."w*"
-endfunction
-
-function! ModifBufs() abort
-  let cnt = len(filter(getbufinfo(), 'v:val.changed'))
-  return cnt == 0 ? "" : (&mod ? "[+". (cnt > 1 ? cnt : "") ."]" : "[".cnt."]")
-endfunction
-
-function! NumOfBufs() abort
-  let num = len(getbufinfo({'buflisted':1}))
-  let hid = len(filter(getbufinfo({'buflisted':1}), 'empty(v:val.windows)'))
-  return hid ? num-hid."+".hid : num
-endfunction
-
-" }}}
-
-" MAPPINGS {{{1
-
-nnoremap ' `
-nnoremap '' ``
-nnoremap <expr> <F4> &virtualedit == "all" ? ":set virtualedit=\<CR>" : ":set virtualedit=all\<CR>"
-nnoremap <F3> :set cursorline! cursorcolumn!<CR>
-nnoremap <Leader><F5> :syntax sync fromstart<CR>
-nnoremap <Leader>= gg=G``
-nnoremap <Leader>b :bnext<CR>
-nnoremap <Leader>h :nohlsearch<CR>
-nnoremap <Leader>q m"gggqG`"
-nnoremap <Leader>R :call RenameVar(expand('<cword>'))<CR>
-nnoremap <Leader>r :call RenameVar(expand('<cword>'), "")<CR>
-nnoremap <M-a> :copen<CR>
-nnoremap <silent> <expr> <F5> g:colors_name == "darkness" ? ":syntax reset <bar> let g:colors_name=''\<CR>" : ":colo darkness\<CR>"
-nnoremap j gj
-nnoremap k gk
-nnoremap zS :echo join(reverse(map(synstack(line('.'), col('.')), 'synIDattr(v:val,"name")')),' ')<CR>
-
-inoremap <expr> <C-o> pumvisible() ? "\<C-n>" : "\<C-o>"
-
-tnoremap <silent> <C-\><C-\> <C-\><C-n>
-tnoremap <silent> <C-\><C-m> <C-\><C-n>:let b:auto_insert = !b:auto_insert<CR>
-
-vnoremap <Leader>s y:%s//g<Left><Left><C-r>"/
-
-imap <Esc>[29~ <nop>
-map  <Esc>[29~ <nop>
-map gh <nop>
-
-" OPTIONS {{{1
-
-set backup
-set colorcolumn=+1,+21,+31
-set complete+=kspell
-set foldtext=MyFoldText()
-set hidden
-set hlsearch
-set ignorecase
-set incsearch
-set laststatus=2
-set linebreak
-set modeline
-set nomodelineexpr
-set nowrap
-set number
-set scrolloff=5
-set sessionoptions=blank,buffers,folds,tabpages,winsize
-set shortmess+=I
-set showcmd
-set smartcase
-set splitbelow
-set splitright
-set switchbuf=usetab
-set title
-set undofile
-set wildmenu
-set wildmode=full
-
-set completeopt=menuone,noinsert,noselect
-set omnifunc=syntaxcomplete#Complete
-set pumheight=20
-
-if has('nvim')
-  set guicursor=n-v-c-sm-i-r-ci-ve-cr-o:block " setting a:block breaks blinking
-  set wildoptions-=pum " don't use popupmenu for wildmode completion
-endif
-
-set foldmethod=indent
-set nofoldenable
-
-set dictionary+=/usr/share/dict/polish
-set dictionary+=/usr/share/dict/words
-set path=**,./
-set tags+=.git/tags;
 
 " PLUGINS AND PACKAGES {{{1
 
@@ -324,6 +185,9 @@ packadd matchit
 source  $VIMRUNTIME/ftplugin/man.vim
 
 " Config {{{
+" Surround {{{1
+
+let g:surround_no_mappings = 1
 
 xmap s  <Plug>VSurround
 nmap s  <Plug>Ysurround
@@ -331,31 +195,37 @@ nmap ds <Plug>Dsurround
 nmap cs <Plug>Csurround
 nmap ss <Plug>Yssurround
 
-nnoremap <F1> :UndotreeToggle<cr>
-nnoremap <Leader>t :Tagbar<CR>
-
-" Options {{{
+" CtrlP {{{1
 
 let g:ctrlp_brief_prompt        = 1
 let g:ctrlp_cache_dir           = $XDG_CACHE_HOME . "/vim/ctrlp"
 let g:ctrlp_clear_cache_on_exit = 0
 let g:ctrlp_extensions          = [ 'buffertag', 'quickfix' ]
-let g:ctrlp_prompt_mappings     = { 'PrtExit()': [ '<C-[>', '<Esc>', '<C-c>' ] }
 let g:ctrlp_types               = [ 'fil', 'buf' ]
 
 let g:ctrlp_prompt_mappings = {
-    \ 'PrtHistory(1)': [ '<C-f>' ],
-    \ 'ToggleType(1)': [ '<C-p>', '<c-up>' ],
-    \ }
+      \ 'PrtExit()':     [ '<Esc>' ],
+      \ 'PrtHistory(1)': [ '<C-f>' ],
+      \ 'ToggleType(1)': [ '<C-p>', '<c-up>' ],
+      \ }
+
+" Tagbar {{{1
+
+nnoremap <Leader>t :Tagbar<CR>
+
+let g:tagbar_compact = 1
+let g:tagbar_sort    = 0
+
+hi! link TagbarNestedKind Comment
+hi! link TagbarType Comment
+
+" ~ {{{1
 
 let g:fastfold_fold_command_suffixes = [ 'C', 'm', 'M', 'N', 'x', 'X' ]
 let g:fastfold_minlines              = 0
 let g:fastfold_savehook              = 0
 
-let g:surround_no_mappings        = 1
 let g:minPlug_updateSelf          = 0
-let g:tagbar_compact              = 1
-let g:tagbar_sort                 = 0
 let g:undotree_SetFocusWhenToggle = 1
 let g:vimspector_base_dir         = $XDG_DATA_HOME . '/vim/vimspector'
 let g:vimspector_install_gadgets  = [ 'debugpy', 'vscode-cpptools' ]
@@ -368,43 +238,52 @@ let g:miniSnip_extends = {
       \ "tex"      : [ "plaintex" ],
       \ }
 
-" Options }}}
+nnoremap <F1> :UndotreeToggle<CR>
 
-hi! link TagbarNestedKind Comment
-hi! link TagbarType Comment
-
-" Config }}}
+" }}}
 
 " STATUS LINE {{{1
 
-set statusline=
-set statusline+={%{NumOfBufs()}}       " Number of buffers
-set statusline+=\ \                    " Separator
-set statusline+=%f                     " Relative path to the file
-set statusline+=\ \                    " Separator
-set statusline+=%y                     " Filetype
-set statusline+=[%{&ff}]               " File format
-set statusline+=[%{FileEncoding()}]    " File encoding
-set statusline+=\ \                    " Separator
-set statusline+=[%{&fo}]               " Format options
-set statusline+=\ \                    " Separator
-set statusline+=[%{FileSize()}]        " File size
-set statusline+=\ \                    " Separator
-set statusline+=%r                     " Readonly flag
-set statusline+=%{&ma\|\|&ro?'':'[-]'} " No modifiable flag
-set statusline+=%w                     " Preview flag
-set statusline+=\ \                    " Separator
-set statusline+=%{ModifBufs()}         " Modified flag (extended)
-set statusline+=%=                     " Switch to the right side
-set statusline+=%{IssuesCount()}       " Count of errors, warnings
-set statusline+=\ \                    " Separator
-set statusline+=<0x%02B>               " Current char hex code
-set statusline+=\ \                    " Separator
-set statusline+=%l/                    " Current line
-set statusline+=%L                     " Total lines
-set statusline+=\ \:\ %c\              " Current column
+" Helpers {{{
 
-" ### OTHER {{{1
+function! s:FileSize() abort
+  let [ bytes, units, i ] = [ getfsize(expand(@%)), ['', 'Ki', 'Mi', 'Gi'], 0 ]
+  while bytes >= 1024 | let bytes = bytes / 1024.0 | let i += 1 | endwhile
+  return printf((i ? "~%.1f" : "%d")." %sB", bytes, units[i])
+endfunction
+
+function! s:IssuesCount() abort
+  let errors   = filter(getqflist(), 'v:val.type == "E"')
+  let warnings = filter(getqflist(), 'v:val.type == "w"')
+  return len(errors)."E ".len(warnings)."w"
+endfunction
+
+function! s:ModifBufs() abort
+  let cnt = len(filter(getbufinfo(), 'v:val.changed'))
+  return cnt == 0 ? "" : (&mod ? "[+". (cnt > 1 ? cnt : "") ."]" : "[".cnt."]")
+endfunction
+
+function! s:NumOfBufs() abort
+  let num = len(getbufinfo({'buflisted':1}))
+  let hid = len(filter(getbufinfo({'buflisted':1}), 'empty(v:val.windows)'))
+  return hid ? num-hid."+".hid : num
+endfunction
+
+" }}}
+
+let &statusline = ""
+      \ . "{%{" . expand('<SID>') . "NumOfBufs()}}"
+      \ . "  %f  %y" . "[%{&ff}]"
+      \ . '[%{(&fenc == "" ? &enc : &fenc).(&bomb ? ",B" : "")}]'
+      \ . "  [%{&fo}]  "
+      \ . "[%{" . expand('<SID>') . "FileSize()}]"
+      \ . "  %r" . "%{&ma\|\|&ro?'':'[-]'}" . "%w  "
+      \ . "%{" . expand('<SID>') . "ModifBufs()}"
+      \ . "%="
+      \ . "*%{" . expand('<SID>') . "IssuesCount()}*"
+      \ . "  <0x%02B>  " . "%l/%L" . " : %c "
+
+" ~ {{{1
 
 augroup OTHER
   autocmd!
@@ -414,9 +293,6 @@ augroup OTHER
 
   " Trim trailing whitespace
   autocmd BufWritePre * silent! undojoin | %s/\s\+$//e | %s/\(\n\r\?\)\+\%$//e
-
-  " Set 'foldmethod' to 'syntax'
-  autocmd FileType css,scss,json,typescript,cs setlocal foldmethod=syntax
 
   " Automatically open QuickFix
   autocmd QuickFixCmdPost [^l]* nested cwindow
@@ -437,8 +313,7 @@ augroup TERMINAL_OPTIONS
         \ let b:auto_insert = 1 | setlocal nonu stl=%f |
         \ au WinEnter <buffer> if b:auto_insert | sil! norm! i | endif'
 
-  " Sanitize Neovim :terminal
-  if has('nvim')
+  if has('nvim') " Sanitize Neovim :terminal
     autocmd TermOpen  * let b:term_job_finished = 0
     autocmd TermEnter * if  b:term_job_finished | call feedkeys("\<C-\>\<C-n>") | endif
     autocmd TermClose * let b:term_job_finished = 1 | call feedkeys("\<C-\>\<C-n>")
