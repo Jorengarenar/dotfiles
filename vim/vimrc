@@ -227,8 +227,6 @@ let g:fastfold_savehook              = 0
 
 let g:minPlug_updateSelf          = 0
 let g:undotree_SetFocusWhenToggle = 1
-let g:vimspector_base_dir         = $XDG_DATA_HOME . '/vim/vimspector'
-let g:vimspector_install_gadgets  = [ 'debugpy', 'vscode-cpptools' ]
 
 let g:miniSnip_extends = {
       \ "arduino"  : [ "cpp", "c" ],
