@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=SimpleScreenRecorder
+Comment=A feature-rich screen recorder that supports X11 and OpenGL
+Icon=simplescreenrecorder
+Exec=simplescreenrecorder --logfile --start-hidden
+Terminal=false
+Categories=AudioVideo;Video;Recorder;Qt;
+Keywords=screen recorder;screencast;live streaming;ssr;
+StartupNotify=true

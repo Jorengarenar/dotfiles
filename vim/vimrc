@@ -35,8 +35,8 @@ colorscheme darkness
 
 com! -range -nargs=+  Align            <line1>,<line2>!column -Lts'<args>' -o'<args>'
 com!                  ExecCurrentLine  normal :.w !sh<CR>
-com! -nargs=1         FillLine         exec "FillToColumn" <q-args> &tw
-com! -nargs=+         FillToColumn     exec {str,r -> ".s/$/ ".repeat(str, (r-col("$"))/len(str))}(<f-args>) | noh
+com! -nargs=1         FillLine         exec "norm! $" | exec "FillToColumn" <q-args> &tw
+com! -nargs=+         FillToColumn     exec {str,r -> "norm! a".repeat(str, (r-col("."))/len(str))}(<f-args>) | noh
 com! -nargs=+         Grep             exec "lvimgrep /".<q-args>."/j **"
 com! -nargs=+         GrepRename       exec {a,b -> 'tabe | lv /\C\<' . a . '\>/j ** | ldo s/\C\<' . a . '\>/' . b . '/gc | up'}(<f-args>) | q
 com! -range=%         Sort             normal :<line1>,<line2>sort i<CR>
@@ -89,7 +89,7 @@ nnoremap <Leader>b :bnext<CR>
 nnoremap <Leader>h :nohlsearch<CR>
 nnoremap <Leader>q m"gggqG`"
 nnoremap <Leader>r :exec {o -> {n -> n != "" ? '%s/\C\<' . o . '\>/' . n . '/g' : ''}(input(o." > ", o))}(expand('<cword>'))<CR>
-nnoremap <M-a> :copen<CR>
+nnoremap <M-a> :cwindow<CR>
 nnoremap <silent> <expr> <F5> g:colors_name == "darkness" ? ":colo colorUp\<CR>" : ":colo darkness\<CR>"
 nnoremap j gj
 nnoremap k gk
@@ -250,10 +250,18 @@ function! s:FileSize() abort
   return printf((i ? "~%.1f" : "%d")." %sB", bytes, units[i])
 endfunction
 
+function! s:CountSpell() abort
+	let counter = 0
+  for line in getline(1,'$')
+    let counter += len(filter(split(line), '!empty(spellbadword(v:val)[0])'))
+	endfor
+	return counter
+endfunction
+
 function! s:IssuesCount() abort
   let errors   = filter(getqflist(), 'v:val.type == "E"')
   let warnings = filter(getqflist(), 'v:val.type == "w"')
-  return len(errors)."E ".len(warnings)."w"
+  return len(errors)."E ".len(warnings)."w" . (&spell ? " ".s:CountSpell()."s" : "")
 endfunction
 
 function! s:ModifBufs() abort
@@ -290,7 +298,7 @@ augroup OTHER
   autocmd BufReadPost * if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit' | exec "norm! g`\"" | endif
 
   " Trim trailing whitespace
-  autocmd BufWritePre * silent! undojoin | %s/\s\+$//e | %s/\(\n\r\?\)\+\%$//e
+  autocmd BufWritePre * sil! undoj | %s/\v(\s+$|\_s+%$)//e | call histdel("/", -1)
 
   " Automatically open QuickFix
   autocmd QuickFixCmdPost [^l]* nested cwindow

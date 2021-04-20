@@ -12,7 +12,7 @@ function! s:genLeveled(lvl) abort
     let l:higherLvls .= " end = '\\ze" . s:cl[1:] . i . s:ed
   endfor
 
-  exec "syn region syntaxMarkerFold" . a:lvl . " matchgroup=Comment transparent fold"
+  exec "syn region syntaxMarkerFold" . a:lvl . " matchgroup=Comment transparent fold containedin=ALL"
         \ "start = " . s:op . a:lvl . s:ed
         \ "end   = " . s:cl . a:lvl . s:ed
         \ "end   = '\\ze" . s:op[1:] . a:lvl . s:ed
@@ -39,7 +39,7 @@ function! s:init(...) abort
   let s:cl = s:st . m2
   let s:ed = "\\v(\\s.*)?'"
 
-  exec "syn region syntaxMarkerFold matchgroup=Comment transparent fold"
+  exec "syn region syntaxMarkerFold matchgroup=Comment transparent fold containedin=ALL"
         \ "start = " . s:op . s:ed
         \ "end   = " . s:cl . s:ed
 

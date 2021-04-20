@@ -59,6 +59,7 @@ export UNCRUSTIFY_CONFIG="$XDG_CONFIG_HOME/uncrustify/default"
 export VIMINIT="so $XDG_CONFIG_HOME/vim/vimrc"
 export WEECHAT_HOME="$XDG_CONFIG_HOME/weechat"
 export WINEPREFIX="$XDG_DATA_HOME/wine"
+export MOZXDG_MODE=2
 
 # Arduino {{{3
 export ARDUINO_DIRECTORIES_DATA="$XDG_DATA_HOME/arduino"

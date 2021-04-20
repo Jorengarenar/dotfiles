@@ -1,8 +1,9 @@
 let s:formatprg_for_filetype = {
       \ "arduino"     : "uncrustify --l CPP base kr mb stroustrup 1tbs 2sw",
       \ "c"           : "uncrustify --l C base kr mb",
-      \ "cpp"         : "uncrustify --l CPP base kr mb stroustrup",
       \ "cmake"       : "cmake-format --command-case lower -",
+      \ "cpp"         : "uncrustify --l CPP base kr mb stroustrup",
+      \ "cs"          : "uncrustify --l CS base kr mb java",
       \ "css"         : "css-beautify -s 2 --space-around-combinator",
       \ "go"          : "gofmt",
       \ "html"        : "tidy -q -w -i --show-warnings 0 --show-errors 0 --tidy-mark no",

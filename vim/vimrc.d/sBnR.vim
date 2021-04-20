@@ -22,8 +22,9 @@ let g:sBnR_makeprgs = {
       \ "ada"      : [ 0, "gnatmake % && gnatclean -c %" ],
       \ "asm"      : [ 0, "as -o %:t:r.o % && ld -s -o %:t:r %:t:r.o && rm %:t:r.o" ],
       \ "basic"    : [ 1, "vintbas %" ],
-      \ "c"        : [ 0, "gcc -std=gnu99 -g % -o %:t:r" ],
+      \ "c"        : [ 0, "gcc -std=gnu99 -Wall -g % -o %:t:r" ],
       \ "cpp"      : [ 0, "g++ -std=gnu++14 -g % -o %:t:r" ],
+      \ "cobol"    : [ 0, "cobc -dOFx -o %:t:r %" ],
       \ "go"       : [ 0, "go build" ],
       \ "haskell"  : [ 0, "ghc -o %:t:r %; rm %:t:r.hi %:t:r.o" ],
       \ "html"     : [ 0, "tidy -quiet -errors --gnu-emacs yes %" ],
@@ -36,7 +37,7 @@ let g:sBnR_makeprgs = {
       \ "python"   : [ 1, "python %" ],
       \ "rust"     : [ 1, "rustc %" ],
       \ "sh"       : [ 1, "chmod +x %:p && %:p" ],
-      \ "tex"      : [ 0, "latexmk -outdir=%:t:r.out.d -pdfxe -interaction=nonstopmode %" ],
+      \ "tex"      : [ 0, "latexmk -outdir=%:t:r.out.d -pdfxe -interaction=nonstopmode % 1>&2" ],
       \ "xhtml"    : [ 0, "tidy -asxhtml -quiet -errors --gnu-emacs yes %" ],
       \}
 
