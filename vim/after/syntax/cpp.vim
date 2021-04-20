@@ -1,13 +1,24 @@
-" vim: fdm=marker fen fdl=1
+" vim: fen fdl=1
 
 " FOLDING {{{1
+" Multi line constructor {{{2
+
+syntax match cppMultilineConstructor transparent fold '\v^\s*\S+\s*\(.*\)\s*:%(\_s*\S.*,)*\n%(\s*\S.*,)*\_s*\S.*\_s*%(\{\s*\}|\ze^\s*\{)'
+
 " Class access specifiers {{{2
 
-syntax region cAccessFold transparent fold
+exec "syntax match cppAccessFoldDef transparent fold '"
+      \ .   '\C\v'
+      \ .   '%(<%(class|struct)>\_.{-}\{\n)@<='
+      \ .   '\n\_s*\S\_.{-}\ze'
+      \ .   '\s*<%(public|private|protected)>'
+      \ . "'"
+
+syntax region cppAccessFold transparent fold
       \ start = "\v(<%(public|private|protected)>)@<=\s*:"
-      \ skip  = "\v\n*\s*((//.*)|(/\*\_.*\*/\s*)|(.*\".*\".*;))$"
-      \ end   = "\v\n?\ze\n*.*<%(public|private|protected)>\s*:"
-      \ end   = "\v\n\ze\n*.*(\{.*)@<!\}"
+      \ skip  = "\v\_s*((//.*)|(/\*\_.*\*/\s*)|(.*\".*\".*;))$"
+      \ end   = "\v\n*\ze.*<%(public|private|protected)>\s*:"
+      \ end   = "\v\n+\ze.*(\{.*)@<!\}"
 
 " Boost test suite {{{2
 
