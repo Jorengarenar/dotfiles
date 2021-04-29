@@ -1,4 +1,4 @@
-if &ft !~# '\v<(c|cpp)>' | finish | endif
+if &ft !~# '\v<(c|cpp)>' | finish | endif " vim: fdl=1
 
 " REGIONS {{{1
 " Include guards {{{2
@@ -21,58 +21,14 @@ syn match cLabel "\v<%(case|default)>\ze%(\s+\S+)?\s*:" display
 syntax match cCaseBadFormat "\v%(<%(case|default)>.*)@<!%(\S.*)@<=<%(case|default)>\ze%(\s+\S+)?\s*:" display
 hi def link cCaseBadFormat cError
 
+" Fix false positive curly error {{{2
+if exists("c_curly_error") && &ft == "c"
+  syn clear cBlock
+  syn region cBlock_ start="{" end="}" transparent fold contains=ALLBUT,cBadBlock,cCurlyError,@cParenGroup,cErrInParen,cErrInBracket,@cStringGroup,@Spell
+endif
 " FOLDING {{{1
 " Parenthesis {{{2
-call AppendToSynRule("cParen", "region", "fold")
-
-" K&R style {{{2
-
-if get(b:, "fold_kr", 0)
-  let s:contains = ''
-  if exists("c_curly_error")
-    let s:contains = ' contains=ALLBUT,cBadBlock,cCurlyError,@cParenGroup,cErrInParen,cErrInBracket,@cStringGroup,@Spell'
-  endif
-
-  let s:pattern = '%('
-
-  if &ft ==# "cpp"
-    " struct/class inheriting
-    let s:pattern .= ''
-          \ . '%(<struct|<class)@<='
-          \ . '\s\ze\s*\S+[^:]:[^:]\s*\S+.*'
-    let s:pattern .= '|'
-
-    " Constructors
-    let s:pattern .= ''
-          \ . '%('
-          \ .    '%([^,:]|\n|^|<%(public|private|protected)>\s*:)'
-          \ .    '\n\s*'
-          \ . ')@<='
-          \ . '%(<%(while|for|if|switch|catch)>)@!'
-          \ . '\S\ze\S*%(::\S+)*\s*\(.*\)\s*%(:.*)?'
-    let s:pattern .= '|'
-  endif
-
-  let s:pattern .= '%(<%(while|for|if|switch|catch)\(.*)@<=\)\ze\s*' . '|'
-
-  let s:pattern .= ''
-        \ . '%('
-        \ .    '^\s*%(//.*|.*\*/|\{|<%(public|private|protected)>\s*:|.*\>)?'
-        \ .    '\s*\n\s*\S+'
-        \ . ')@<='
-        \ . '\s\ze\s*\S+\s*'
-        \ . '%(.*[^:]:[^:].*)@!'
-        \ . '%(\s+\S+)*'
-
-  let s:pattern .= ')%(;\s*)@<!%(//.*|/\*.*\*/)?\n\s*'
-
-  syn clear cBlock
-  exec 'syn region cBlock_ end="}" fold' . s:contains
-        \ . ' start = "\%#=1\C\v' . s:pattern . '\{"'
-        \ . ' start = "\%#=1\C\v%(' . s:pattern . ')@<!\{"'
-
-  unlet s:contains s:pattern
-endif
+call utils#appendToSynRule("cParen", "region", "fold")
 
 " Switch's cases {{{2
 
