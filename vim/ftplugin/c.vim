@@ -5,5 +5,3 @@ setlocal path+=/usr/include/**
 
 let c_curly_error  = 1
 let c_space_errors = 1
-
-let b:fold_kr = 1

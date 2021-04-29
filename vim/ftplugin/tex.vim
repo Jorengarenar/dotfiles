@@ -10,6 +10,8 @@ let g:tex_fold_envs = ""
       \ ." figure"
       \ ." gather"
       \ ." itemize"
+      \ ." multicols"
+      \ ." tcolorbox"
       \ ." tikzpicture"
       \ ." verbatim"
 

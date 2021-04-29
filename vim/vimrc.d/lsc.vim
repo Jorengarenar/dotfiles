@@ -1,8 +1,10 @@
 let g:lsc_enable_autocomplete  = v:false
 
 let g:lsc_auto_map = { "defaults": v:true,
+      \ "Completion": "omnifunc",
       \ "ShowHover": "gK",
-      \ "Completion": "omnifunc"
+      \ 'NextReference': '<Leader><C-n>',
+      \ 'PreviousReference': '<Leader><C-p>',
       \ }
 
 hi! link lscDiagnosticWarning  WarningMsg
