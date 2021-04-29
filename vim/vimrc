@@ -34,6 +34,7 @@ colorscheme darkness
 " COMMANDS {{{1
 
 com! -range -nargs=+  Align            <line1>,<line2>!column -Lts'<args>' -o'<args>'
+com!                  CountSpell       echo utils#CountSpell()
 com!                  ExecCurrentLine  normal :.w !sh<CR>
 com! -nargs=1         FillLine         exec "norm! $" | exec "FillToColumn" <q-args> &tw
 com! -nargs=+         FillToColumn     exec {str,r -> "norm! a".repeat(str, (r-col("."))/len(str))}(<f-args>) | noh
@@ -44,40 +45,7 @@ com!                  SortBlock        normal! vip:sort i<CR>
 com! -nargs=? -bang   Spelling         setlocal spell<bang> spelllang=<args>
 com!                  SudoW            exec 'silent! write !sudo tee % >/dev/null' | edit!
 com!                  SyntaxStack      echo join(reverse(map(synstack(line('.'), col('.')), 'synIDattr(v:val,"name")')),' ')
-com! -range           VisSort          sil! keepj <line1>,<line2>call <SID>VisSort()
-
-" FUNCTIONS {{{1
-
-function! AppendToSynRule(group, type, addition) abort
-  let x = split(execute("syntax list " . a:group), '\n')
-  let y = index(map(deepcopy(x), 'v:val =~ ".*links to .*"'), 1)
-  let y = y > 0 ? y-1 : y
-  let x = split(join(x[:y]))
-  let x = x[index(x, 'xxx')+1:]
-  execute "syntax clear ".a:group
-  execute "syntax " . a:type . " " .a:group." ". a:addition . " ".join(x)
-endfunction
-
-function! MyFoldText() abort
-  return "+-" . v:folddashes . " "
-        \ . printf("%3d", v:foldend - v:foldstart + 1) . " lines: "
-        \ . trim(substitute(getline(v:foldstart), split(&l:fmr, ',')[0] . '\d\=', '', '')) . " "
-endfunction
-
-function! s:VisSort() range abort " sorts based on visual-block selected portion of the lines
-  if visualmode() != "\<C-v>"
-    exec "sil! ".a:firstline.",".a:lastline."sort i"
-    return
-  endif
-  let [ firstline, lastline ] = [ line("'<"), line("'>") ]
-  let old_a  = @a
-  silent normal! gv"ay
-  '<,'>s/^/@@@/
-  silent! keepjumps normal! '<0"aP
-  silent! keepj '<,'>sort i
-  execute "sil! keepj ".firstline.",".lastline.'s/^.\{-}@@@//'
-  let @a = old_a
-endfun
+com! -range           VisSort          sil! keepj <line1>,<line2>call utils#VisSort()
 
 " MAPPINGS {{{1
 
@@ -109,7 +77,6 @@ set backspace=indent,eol,start
 set backup
 set colorcolumn=+1,+21,+31
 set complete+=kspell
-set foldtext=MyFoldText()
 set hidden
 set hlsearch
 set ignorecase
@@ -123,6 +90,7 @@ set sessionoptions=blank,buffers,folds,tabpages,winsize
 set shortmess+=I
 set showcmd
 set smartcase
+set spellsuggest=double
 set splitbelow splitright
 set switchbuf=usetab
 set title
@@ -137,9 +105,6 @@ if has('nvim')
   set guicursor=n-v-c-sm-i-r-ci-ve-cr-o:block " setting a:block breaks blinking
   set wildoptions-=pum " don't use popupmenu for wildmode completion
 endif
-
-set foldmethod=indent
-set nofoldenable
 
 set path=**,./
 set tags+=.git/tags;
@@ -161,6 +126,15 @@ set shiftwidth=0   " If 0, then uses value of 'tabstop'
 set softtabstop=-1 " If negative, then uses 'shiftwidth' (which can use 'tabstop')
 set tabstop=4
 set textwidth=79
+
+set foldmethod=indent
+set foldtext=MyFoldText()
+set nofoldenable
+
+function! MyFoldText() abort
+  return "+-" . v:folddashes . " " . printf("%3d", v:foldend - v:foldstart + 1) . " lines: "
+        \ . trim(substitute(getline(v:foldstart), split(&l:fmr, ',')[0].'\d\?', '', '')) . " "
+endfunction
 
 " PLUGINS AND PACKAGES {{{1
 
@@ -250,18 +224,10 @@ function! s:FileSize() abort
   return printf((i ? "~%.1f" : "%d")." %sB", bytes, units[i])
 endfunction
 
-function! s:CountSpell() abort
-	let counter = 0
-  for line in getline(1,'$')
-    let counter += len(filter(split(line), '!empty(spellbadword(v:val)[0])'))
-	endfor
-	return counter
-endfunction
-
 function! s:IssuesCount() abort
   let errors   = filter(getqflist(), 'v:val.type == "E"')
   let warnings = filter(getqflist(), 'v:val.type == "w"')
-  return len(errors)."E ".len(warnings)."w" . (&spell ? " ".s:CountSpell()."s" : "")
+  return len(errors)."E ".len(warnings)."w"
 endfunction
 
 function! s:ModifBufs() abort
@@ -297,9 +263,6 @@ augroup OTHER
   " Open file at the last known position
   autocmd BufReadPost * if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit' | exec "norm! g`\"" | endif
 
-  " Trim trailing whitespace
-  autocmd BufWritePre * sil! undoj | %s/\v(\s+$|\_s+%$)//e | call histdel("/", -1)
-
   " Automatically open QuickFix
   autocmd QuickFixCmdPost [^l]* nested cwindow
   autocmd QuickFixCmdPost    l* nested lwindow
@@ -310,6 +273,11 @@ augroup OTHER
   " If file has more lines than window height, then fold it
   autocmd BufReadPost * if line('$') > winheight(0) | setlocal fen | endif
 
+augroup END
+
+augroup TRIM_TRAILING_WHITESPACE
+  autocmd!
+  autocmd BufWritePre * sil! undoj | %s/\v(\s+$|\_s+%$)//e | call histdel("/", -1)
 augroup END
 
 augroup TERMINAL_OPTIONS
