@@ -48,18 +48,19 @@ export IMAPFILTER_HOME="$XDG_CONFIG_HOME/imapfilter"
 export INPUTRC="$XDG_CONFIG_HOME/readline/inputrc"
 export MAILCAP="$XDG_CONFIG_HOME/mailcap" # elinks, w3m
 export MAILCAPS="$MAILCAP"   # Mutt, pine
+export MOZXDG_MODE=2
 export MYSQL_HOME="$XDG_CONFIG_HOME/mysql"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 export PASSWORD_STORE_DIR="$XDG_DATA_HOME/pass"
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/config.py"
 export PYTHONUSERBASE="$XDG_LOCAL_HOME"
+export R_ENVIRON_USER="$XDG_CONFIG_HOME/r/Renviron"
 export RANDFILE="$XDG_CACHE_HOME/rnd"
 export TEXMFHOME="$XDG_LOCAL_HOME/lib/texmf"
 export UNCRUSTIFY_CONFIG="$XDG_CONFIG_HOME/uncrustify/default"
 export VIMINIT="so $XDG_CONFIG_HOME/vim/vimrc"
 export WEECHAT_HOME="$XDG_CONFIG_HOME/weechat"
 export WINEPREFIX="$XDG_DATA_HOME/wine"
-export MOZXDG_MODE=2
 
 # Arduino {{{3
 export ARDUINO_DIRECTORIES_DATA="$XDG_DATA_HOME/arduino"

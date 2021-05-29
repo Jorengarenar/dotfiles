@@ -20,11 +20,16 @@ endfunction
 augroup VIMSPECTOR_
   autocmd!
   autocmd VimEnter * call s:init()
+
   autocmd User VimspectorDebugEnded
-        \  call system("mv ~/.vimspector.log " . $XDG_CACHE_HOME."/vim/")
-        \| call delete($HOME."/.mono", "rf")
+        \  call delete($HOME."/.mono", "rf")
         \| call vimspector#ClearBreakpoints()
         \| let &mouse = s:mouse_old
+
+  autocmd VimLeave *
+        \  if filereadable("~/.vimspector.log")
+        \|   call system("mv ~/.vimspector.log " . $XDG_CACHE_HOME."/vim/")
+        \| endif
 augroup END
 
 " UI {{{1

@@ -141,10 +141,11 @@ endfunction
 runtime plugin/minPlug.vim
 
 let g:minPlug_singleFiles = [
-      \   [ "autoload/repeat.vim", "https://git.io/JmdpI", "$XDG_CONFIG_HOME/vim" ],
-      \   [ "plugin/fastfold.vim", "https://git.io/JIEo6", "$XDG_CONFIG_HOME/vim" ],
-      \   [ "plugin/surround.vim", "https://git.io/JLXyW", "$XDG_CONFIG_HOME/vim" ],
-      \   [ "syntax/tex.vim",      "https://git.io/JYBDH", "$XDG_CONFIG_HOME/vim" ],
+      \   [ "autoload/repeat.vim",   "https://git.io/JmdpI", "$XDG_CONFIG_HOME/vim" ],
+      \   [ "plugin/commentary.vim", "https://git.io/JGOEP", "$XDG_CONFIG_HOME/vim" ],
+      \   [ "plugin/fastfold.vim",   "https://git.io/JIEo6", "$XDG_CONFIG_HOME/vim" ],
+      \   [ "plugin/surround.vim",   "https://git.io/JLXyW", "$XDG_CONFIG_HOME/vim" ],
+      \   [ "syntax/tex.vim",        "https://git.io/JYBDH", "$XDG_CONFIG_HOME/vim" ],
       \ ]
 
 MinPlug ctrlpvim/ctrlp.vim

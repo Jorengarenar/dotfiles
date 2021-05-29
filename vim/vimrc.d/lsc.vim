@@ -85,7 +85,7 @@ function! s:init() abort
         \|   exec "LSClientAllDiagnostics" | q
         \| endif
 
-  autocmd VimLeavePre <buffer> exec "LSClientDisable" | sleep 100m
+  autocmd VimLeavePre <buffer> call lsc#server#disable() | delfunction lsc#server#exit
 
 endfunction
 
