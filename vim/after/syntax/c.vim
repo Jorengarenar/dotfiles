@@ -22,12 +22,15 @@ syntax match cCaseBadFormat "\v%(<%(case|default)>.*)@<!%(\S.*)@<=<%(case|defaul
 hi def link cCaseBadFormat cError
 
 " Fix false positive curly error {{{2
+
 if exists("c_curly_error") && &ft == "c"
   syn clear cBlock
   syn region cBlock_ start="{" end="}" transparent fold contains=ALLBUT,cBadBlock,cCurlyError,@cParenGroup,cErrInParen,cErrInBracket,@cStringGroup,@Spell
 endif
+
 " FOLDING {{{1
 " Parenthesis {{{2
+
 call utils#appendToSynRule("cParen", "region", "fold")
 
 " Switch's cases {{{2
@@ -54,6 +57,10 @@ syntax region cStringFold transparent fold
 
 syntax region cLongComment start="^\s*//.*\n\ze\%(\s*//.*\n\)\{3,}" end="^\%(//\)\@!" fold
 hi link cLongComment cCommentL
+
+" #pragma region {{{2
+
+syn region cPragmaRegion start='#pragma region' end='#pragma endregion' fold transparent keepend extend
 
 " Preprocessor '#if' folding {{{2
 
