@@ -73,7 +73,8 @@ linking  mpv/              $XDG_CONFIG_HOME/mpv
 linking  muttrc            $XDG_CONFIG_HOME/mutt/muttrc
 linking  myclirc           $XDG_CONFIG_HOME/mycli/myclirc
 linking  newsboat/config   $XDG_CONFIG_HOME/newsboat/config
-linking  ranger            $XDG_CONFIG_HOME/ranger/rc.conf
+linking  ranger.conf       $XDG_CONFIG_HOME/ranger/rc.conf
+linking  Renviron          $XDG_CONFIG_HOME/r/Renviron
 linking  shell/            $XDG_CONFIG_HOME/shell
 linking  spicy_settings    $XDG_CONFIG_HOME/spicy/settings # linking is nulled after each run and replcaced with copy
 linking  ssh_config        $XDG_CONFIG_HOME/ssh/config

@@ -1,3 +1,10 @@
 #webrtcIndicator {
   display: none;
 }
+
+#BMB_viewBookmarksToolbar,
+#BMB_viewBookmarksToolbar + menuseparator,
+#BMB_bookmarksShowAll,
+#BMB_bookmarksShowAll + menuseparator {
+  display: none !important;
+}

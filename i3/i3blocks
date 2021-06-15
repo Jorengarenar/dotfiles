@@ -7,7 +7,7 @@ command=sensors | awk '/Tdie/ {print $2}'
 interval=1
 
 [cpu-freq]
-command=lscpu | awk '/CPU MHz/ {printf "%4s MHz", int($3)}' && [ "$(cpu-gov p)" = "performance" ] && echo "'" || echo
+command=lscpu -e=MHz | sort -r | sed '2q;d'
 interval=1
 
 [wifi]

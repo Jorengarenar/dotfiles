@@ -16,6 +16,7 @@ exec qemu-system-x86_64 \
     -drive format=raw,file="$DISK",aio=native,cache.direct=on \
     -cpu host,hv_relaxed,hv_spinlocks=0x1fff,hv_vapic,hv_time \
     -m 8G \
+    -mem-prealloc \
     -device virtio-balloon \
     `# -mem-path /dev/hugepages` \
     -net nic \

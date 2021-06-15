@@ -80,10 +80,10 @@ for_window [class="QuiteRss" instance="quiterss" title="QuiteRSS"] resize set 14
 for_window [class="QuiteRss" instance="quiterss" title="QuiteRSS"] move scratchpad         # 4
 
 # KanjiTomo
-for_window [class="kanjitomo-reader-Launcher" instance="sun-awt-X11-XFramePeer" title="KanjiTomo"] floating enable       # 1
-for_window [class="kanjitomo-reader-Launcher" instance="sun-awt-X11-XFramePeer" title="KanjiTomo"] move position 1370 70 # 2
-for_window [class="kanjitomo-reader-Launcher" instance="sun-awt-X11-XFramePeer" title="KanjiTomo"] resize set 550 880    # 3
-for_window [class="kanjitomo-reader-Launcher" instance="sun-awt-X11-XFramePeer" title="win0"] move scratchpad            # 4
+for_window [class="kanjitomo-reader-Launcher" title="KanjiTomo"] floating enable       # 1
+for_window [class="kanjitomo-reader-Launcher" title="KanjiTomo"] move position 1370 70 # 2
+for_window [class="kanjitomo-reader-Launcher" title="KanjiTomo"] resize set 550 880    # 3
+for_window [class="kanjitomo-reader-Launcher" title="win0"] move scratchpad            # 4
 
 # GIMP
 for_window [class="^Gimp$" title="^GNU Image Manipulation Program$"] floating disabled

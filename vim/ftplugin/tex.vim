@@ -12,6 +12,7 @@ let g:tex_fold_envs = ""
       \ ." figure"
       \ ." gather"
       \ ." itemize"
+      \ ." lstlisting"
       \ ." minipage"
       \ ." multicols"
       \ ." table"
@@ -29,5 +30,5 @@ endfunction
 augroup FilterLatexQuickfix
   autocmd!
   autocmd QuickfixCmdPost <buffer> call setqflist(filter(getqflist(), 'v:val.valid'))
-  autocmd FileType qf nnoremap <silent> <CR> <CR>:call <SID>Foo()<CR>
+  autocmd FileType qf nnoremap <silent> <buffer> <CR> <CR>:call <SID>Foo()<CR>
 augroup END

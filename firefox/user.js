@@ -17,6 +17,9 @@ user_pref("dom.webnotifications.enabled ", false);
 
 user_pref("widget.content.allow-gtk-dark-theme", true);
 
+user_pref("browser.compactmode.show", true);
+user_pref("browser.proton.enabled", false);
+
 user_pref("extensions.webextensions.uuids", "{\"CookieAutoDelete@kennydo.com\":\"0b6488ee-307d-456f-a73d-79f23aad543a\",\"simple-translate@sienori\":\"2b28de58-ee73-4916-8cf3-58cd399a1c14\",\"{7a7a4a92-a2a0-41d1-9fd7-1e92480d612d}\":\"7e6879ad-8bcb-4554-b092-35c895d50629\",\"firefox@tampermonkey.net\":\"0d0b4346-e57b-4e66-96c8-daf3a7350b1b\",\"{4d567245-e70d-466a-bb2f-390fc7fb25c2}\":\"9539c9f2-6fbe-4f26-b561-ff20d2376260\",\"doh-rollout@mozilla.org\":\"9ebab69c-ca09-4aba-9f37-c0c54e569c2c\",\"formautofill@mozilla.org\":\"a6427358-c534-4558-ae6f-dc4e998d9291\",\"screenshots@mozilla.org\":\"46225d83-fb07-4b0f-97d7-5293d83cc3a5\",\"webcompat-reporter@mozilla.org\":\"1e1bfd00-ce80-4bb2-8366-8b72e65ac259\",\"webcompat@mozilla.org\":\"d5f61907-d7da-415f-aac2-e3950d9b9dad\",\"google@search.mozilla.org\":\"651625ee-e00e-4c53-8c46-db84d4ea2eec\",\"amazondotcom@search.mozilla.org\":\"57102ad8-5148-4132-99e7-45272e9be40a\",\"wikipedia@search.mozilla.org\":\"2e45368c-0098-4e28-ab3f-a2489523730e\",\"bing@search.mozilla.org\":\"16574398-2a51-4de6-a987-a3d5be9d561f\",\"ddg@search.mozilla.org\":\"c5b63b48-4cb6-4cf5-9ea7-dc60879ae202\",\"firefox-compact-dark@mozilla.org\":\"76a7d454-f8c0-4667-9ca7-00b4bc9b7d3c\",\"uBlock0@raymondhill.net\":\"9452ba93-8dc6-4993-9cc5-7bec7c0cb5c2\"}");
 
 user_pref("browser.aboutConfig.showWarning", false);
