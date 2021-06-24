@@ -1,10 +1,18 @@
 #webrtcIndicator {
-  display: none;
-}
-
-#BMB_viewBookmarksToolbar,
-#BMB_viewBookmarksToolbar + menuseparator,
-#BMB_bookmarksShowAll,
-#BMB_bookmarksShowAll + menuseparator {
   display: none !important;
 }
+
+#BMB_bookmarksToolbar,     #BMB_bookmarksToolbar     + menuseparator,
+#BMB_viewBookmarksSidebar, #BMB_viewBookmarksSidebar + menuseparator,
+#BMB_bookmarksShowAll,     #BMB_bookmarksShowAll     + menuseparator
+{
+  display: none !important;
+}
+
+#BMB_unsortedBookmarks {
+  -moz-box-ordinal-group: 0;
+}
+
+#BMB_bookmarksShowAllTop + menuseparator { -moz-box-ordinal-group: 9998; }
+#BMB_bookmarksShowAllTop { -moz-box-ordinal-group: 9999; opacity: 0.6; }
+#BMB_bookmarksShowAllTop [value="Ctrl+Shift+O"] { display: none; }

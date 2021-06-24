@@ -19,26 +19,35 @@ chmod -R +x bin/
 
 # linking FUNCTION {{{
 
-# 1st argument - file in dotfiles dir
-# 2nd argument - location of link
-# 3rd argument - permissions
+# 1st argument - command
+# 2nd argument - file in dotfiles dir
+# 3rd argument - location of link
+# 4th argument - permissions
+
+foo() {
+
+    if [ "$force_flag" = "-f" ] && [ -e "$3" ]; then
+        mkdir -p $HOME/dotfiles.old/
+        mv "$3" "$HOME/dotfiles.old/"
+        echo "Moved file $3 to directory $HOME/dotfiles.old/"
+    fi
+
+    if [ ! -e $3 ]; then
+        mkdir -p "$(dirname $3)"
+        $1 $DIR/$2 $3
+    fi
+
+    [ -n "$4" ] && chmod "$4" "$3"
+
+} # }}}
 
 linking() {
-    if [ "$force_flag" = "-f" ] && [ -e "$2" ]; then
-        mkdir -p $HOME/dotfiles.old/
-        mv "$2" "$HOME/dotfiles.old/"
-        echo "Moved file $2 to directory $HOME/dotfiles.old/"
-    fi
+    foo "ln -sf" $@
+}
 
-    if [ ! -e $2 ]; then
-        mkdir -p "$(dirname $2)"
-        ln -sf $DIR/$1 $2
-    fi
-
-    if [ -n "$3" ]; then
-        chmod "$3" "$2"
-    fi
-} # }}}
+copying() {
+    foo "cp" $@
+}
 
 # LITE {{{1
 if [ "$1" = "--lite" -o "$2" = "--lite" ]; then
@@ -51,7 +60,7 @@ if [ "$1" = "--lite" -o "$2" = "--lite" ]; then
     exit
 fi
 # FULL {{{1
-# MAIN LINKING {{{2
+# MAIN LINKING AND COPYING {{{2
 
 linking  env/pam           $HOME/.pam_environment
 
@@ -104,6 +113,8 @@ linking  bin/wrappers/     $XDG_LOCAL_HOME/bin/wrappers
 linking firefox/user.js         $XDG_DATA_HOME/firefox/user.js
 linking firefox/userContent.css $XDG_DATA_HOME/firefox/chrome/userContent.css
 linking firefox/userChrome.css  $XDG_DATA_HOME/firefox/chrome/userChrome.css
+
+copying QuiteRss.ini      $XDG_CONFIG_HOME/QuiteRss/QuiteRss.ini
 
 # "PATCHING" {{{2
 wrappers_dir="$XDG_LOCAL_HOME/bin/_patch"

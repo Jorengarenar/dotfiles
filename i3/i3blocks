@@ -7,7 +7,7 @@ command=sensors | awk '/Tdie/ {print $2}'
 interval=1
 
 [cpu-freq]
-command=lscpu -e=MHz | sort -r | sed '2q;d'
+command=lscpu -e=MHz | sort -r | sed '2q;d' | sed 's/\.[0-9]\+/ MHz/'
 interval=1
 
 [wifi]

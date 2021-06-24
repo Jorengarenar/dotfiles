@@ -1,6 +1,3 @@
-# This file is mostly useless, for .profile appears way more reliable
-# Although may be handy in some scenarios
-
 XDG_LOCAL_HOME   DEFAULT="@{HOME}/.local"
 
 XDG_CACHE_HOME   DEFAULT="${XDG_LOCAL_HOME}/cache"

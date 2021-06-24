@@ -29,6 +29,8 @@ alias suspend='systemctl suspend'
 alias umnt='udisksctl unmount -b'
 alias update-grub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 alias vi='vim -u NONE'
+alias wacom-map-output="xsetwacom set \$(xsetwacom list | awk '/stylus/ {print \$8}') MapToOutput 1920x1080+0+0"
 alias wine-lnk='wine C:\\windows\\command\\start.exe /Unix'
 alias yay-autoremove='yay -Rns $(yay -Qtdq)'
 alias yt-mp3='youtube-dl --extract-audio --audio-format mp3'
+alias mpv_='mpv --msg-level=cplayer=no --no-video --loop-playlist'

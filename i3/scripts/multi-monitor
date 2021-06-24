@@ -3,14 +3,9 @@
 PRIMARY="HDMI-0"
 SECONDARY="DP-5"
 
-WACOM_ID="16"
-
 if [ -z "$(xrandr --listactivemonitors | grep 'Monitors: 1')" ]; then
     xrandr --output $PRIMARY --primary
     xrandr --output $SECONDARY --auto --"${i3_2nd_MONITOR_POSITON:-right-of}" "$PRIMARY"
     i3-msg "workspace 6, move workspace to output $SECONDARY"
     i3-msg "workspace 1, move workspace to output $PRIMARY"
-
-    # set Wacom tablet to left monitor
-    xsetwacom set "$WACOM_ID" MapToOutput 1920x1080+0+0
 fi
