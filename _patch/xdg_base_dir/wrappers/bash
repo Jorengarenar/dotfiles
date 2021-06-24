@@ -1,8 +1,0 @@
-#!/usr/bin/env sh
-
-for dir in $(echo "$PATH" | tr ":" "\n" | grep -Fxv "$(dirname $0)"); do
-    if [ -x "$dir/$(basename $0)" ]; then
-        exec "$dir/$(basename $0)" --rcfile "${XDG_CONFIG_HOME:-$HOME/.config}/bash/bashrc" "$@"
-    fi
-done
-echo "$0: error: Wrapped command does not exist" >&2

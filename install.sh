@@ -17,13 +17,12 @@ DIR="$(dirname $(realpath $0))"
 
 chmod -R +x bin/
 
-# linking FUNCTION {{{
+# foo FUNCTION {{{
 
 # 1st argument - command
 # 2nd argument - file in dotfiles dir
 # 3rd argument - location of link
 # 4th argument - permissions
-
 foo() {
 
     if [ "$force_flag" = "-f" ] && [ -e "$3" ]; then
@@ -39,7 +38,7 @@ foo() {
 
     [ -n "$4" ] && chmod "$4" "$3"
 
-} # }}}
+}
 
 linking() {
     foo "ln -sf" $@
@@ -49,18 +48,9 @@ copying() {
     foo "cp" $@
 }
 
-# LITE {{{1
-if [ "$1" = "--lite" -o "$2" = "--lite" ]; then
-    linking  bin/scripts/      $XDG_LOCAL_HOME/scripts
-    linking  bin/wrappers/     $XDG_LOCAL_HOME/wrappers
-    linking  git/              $XDG_CONFIG_HOME/git
-    linking  mpv/              $XDG_CONFIG_HOME/mpv
-    linking  vim/              $HOME/.vim
+# }}}
 
-    exit
-fi
-# FULL {{{1
-# MAIN LINKING AND COPYING {{{2
+# MAIN {{{1
 
 linking  env/pam           $HOME/.pam_environment
 
@@ -85,10 +75,10 @@ linking  newsboat/config   $XDG_CONFIG_HOME/newsboat/config
 linking  ranger.conf       $XDG_CONFIG_HOME/ranger/rc.conf
 linking  Renviron          $XDG_CONFIG_HOME/r/Renviron
 linking  shell/            $XDG_CONFIG_HOME/shell
-linking  spicy_settings    $XDG_CONFIG_HOME/spicy/settings # linking is nulled after each run and replcaced with copy
 linking  ssh_config        $XDG_CONFIG_HOME/ssh/config
 linking  tmux.conf         $XDG_CONFIG_HOME/tmux/tmux.conf
 linking  user-dirs.dirs    $XDG_CONFIG_HOME/user-dirs.dirs
+linking  vim/              $XDG_CONFIG_HOME/vim
 linking  X11/              $XDG_CONFIG_HOME/X11
 linking  zathurarc         $XDG_CONFIG_HOME/zathura/zathurarc
 
@@ -100,7 +90,6 @@ linking  mailcap           $MAILCAP
 linking  npmrc             $NPM_CONFIG_USERCONFIG
 linking  python_config.py  $PYTHONSTARTUP
 linking  uncrustify/       $(dirname $UNCRUSTIFY_CONFIG)
-linking  vim/              $VIMDOTDIR
 linking  zshrc             $ZDOTDIR/.zshrc
 
 linking  app.desktop.d/    $XDG_DATA_HOME/applications/custom
@@ -110,39 +99,40 @@ linking  themes/           $XDG_DATA_HOME/themes
 linking  bin/scripts/      $XDG_LOCAL_HOME/bin/scripts
 linking  bin/wrappers/     $XDG_LOCAL_HOME/bin/wrappers
 
-linking firefox/user.js         $XDG_DATA_HOME/firefox/user.js
-linking firefox/userContent.css $XDG_DATA_HOME/firefox/chrome/userContent.css
-linking firefox/userChrome.css  $XDG_DATA_HOME/firefox/chrome/userChrome.css
+linking  firefox/user.js         $XDG_DATA_HOME/firefox/user.js
+linking  firefox/userContent.css $XDG_DATA_HOME/firefox/chrome/userContent.css
+linking  firefox/userChrome.css  $XDG_DATA_HOME/firefox/chrome/userChrome.css
 
-copying QuiteRss.ini      $XDG_CONFIG_HOME/QuiteRss/QuiteRss.ini
+copying  spicy_settings    $XDG_CONFIG_HOME/spicy/settings # linking is nulled after each run and replcaced with copy
+copying  QuiteRss.ini      $XDG_CONFIG_HOME/QuiteRss/QuiteRss.ini
 
-# "PATCHING" {{{2
-wrappers_dir="$XDG_LOCAL_HOME/bin/_patch"
-# XDG Base Dir {{{3
-# WRAPPERS {{{4
-chmod +x $DIR/_patch/xdg_base_dir/wrappers/*
+# "PATCHING" {{{1
 
-xdg_wrappers_dir="$wrappers_dir/xdg_wrappers"
-# clean old symlinks to wrappers
-if [ -d "$xdg_wrappers_dir" ] && [ "$(find $xdg_wrappers_dir -type l | wc -l)" -eq "$(ls -1 $xdg_wrappers_dir | wc -l)" ]; then
-    rm -r "$xdg_wrappers_dir"
-fi
+patch_dir="$XDG_LOCAL_HOME/bin/_patch"
 
-# Link wrappers
-for exe in $DIR/_patch/xdg_base_dir/wrappers/*; do
-    [ -x "$(command -v $(basename $exe))" ] && linking  "_patch/xdg_base_dir/wrappers/$(basename $exe)"  "$xdg_wrappers_dir/$(basename $exe)"
-done
+# XDG Base Dir
+# xdg_wrapper.sh {{{3
+chmod u+x $DIR/_patch/xdg_base_dir/xdg_wrapper.sh
 
-[ -x "$(command -v scp)"  ] && linking  _patch/xdg_base_dir/wrappers/ssh  $xdg_wrappers_dir/scp
-[ -x "$(command -v tcsh)" ] && linking  _patch/xdg_base_dir/wrappers/csh  $xdg_wrappers_dir/tcsh
+xdg_wrappers_dir="$patch_dir/xdg_wrappers"
 
-# Generate FAKEHOME wrappers
+find "$xdg_wrappers_dir" -type l -delete # clean old symlinks to wrappers
+
 while IFS= read -r exe; do
     exe="$(echo $exe | cut -f1 -d'#')"
-    [ -n "$exe" ] && [ -x "$(command -v $exe)" ] && linking  _patch/xdg_base_dir/wrappers/_xdg_fakehome.sh  $xdg_wrappers_dir/$exe
-done < "$DIR/_patch/xdg_base_dir/fakehome.list"
+    [ -x "$(command -v $exe)" ] && linking  _patch/xdg_base_dir/xdg_wrapper.sh  $xdg_wrappers_dir/$exe
+done < "$DIR/_patch/xdg_base_dir/wrapping.list"
 
-# Install /etc/profile.d/profile_xdg.sh ? {{{4
+# MozXDG
+if [ -x "$(command -v firefox)" ]; then
+    if [ "$force_flag" = "-f" ]; then
+        gitclone https://github.com/Jorengarenar/MozXDG.git
+        (cd $TMPDIR/dotfiles_${USER}_deps/MozXDG && make && make install)
+    fi
+    [ -x "$(command -v mozxdg)" ] && ln -sf "$(command -v mozxdg)" $xdg_wrappers_dir/firefox
+fi
+
+# Install /etc/profile.d/profile_xdg.sh ? {{{3
 
 # Check if user has sudo privileges
 prompt_sudo=$(sudo -nv 2>&1)
@@ -168,23 +158,13 @@ fi
 if [ "$status" = "installing" ]; then
     sudo ln -sf $DIR/_patch/xdg_base_dir/profile_xdg.sh /etc/profile.d/profile_xdg.sh
     sudo chmod 644 /etc/profile.d/profile_xdg.sh  # just in case
-elif [ $status != installed ]; then
+elif [ "$status" != "installed" ]; then
     linking  env/profile  $HOME/.profile
 fi
 
-# OTHER {{{2
+# }}}3
+
+# OTHER {{{1
 
 mkdir -p "$(dirname $DCONF_PROFILE)" && touch "$DCONF_PROFILE" # prevents creating ~/.dconf
 mkdir -p $XDG_DATA_HOME/alsa
-
-if [ "$force_flag" = "-f" ]; then
-
-    # libProgWrap
-    gitclone https://github.com/Jorengarenar/libProgWrap.git
-    sh -c 'cd $TMPDIR/dotfiles_${USER}_deps/libProgWrap && sh install.sh'
-
-    # MozXDG
-    gitclone https://github.com/Jorengarenar/MozXDG.git
-    (cd $TMPDIR/dotfiles_${USER}_deps/MozXDG && make && make install && make link-firefox LINK_DIR=$xdg_wrappers_dir)
-
-fi

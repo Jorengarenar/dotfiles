@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-
-mkdir -p "$XDG_CONFIG_HOME/nvidia"
-
-. "$XDG_LIB_DIR/shell/progwrap.sh"
-progwrap_exec --config="$XDG_CONFIG_HOME/nvidia/rc.conf" "$@"

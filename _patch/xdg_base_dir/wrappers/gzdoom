@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-
-HOME="${XDG_FAKEHOME_DIR:-$HOME/.local/home}"
-
-. "$XDG_LIB_DIR/shell/progwrap.sh"
-progwrap_exec -config $XDG_CONFIG_HOME/gzdoom/gzdoom.ini -savedir $XDG_CONFIG_HOME/gzdoom "$@"
