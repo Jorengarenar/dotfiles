@@ -45,15 +45,15 @@ if executable("sqls")
         \       "connections": [
         \         {
         \           "driver": 'sqlite3',
-        \           "dataSourceName": expand($SQLS_SQLITE_DB),
+        \           "dataSourceName": $SQLS_SQLITE_DB,
         \         },
         \         {
         \           "driver": "mysql",
         \           "proto":  "unix",
-        \           "user":   expand($SQLS_MYSQL_USER),
-        \           "passwd": expand($SQLS_MYSQL_PASSWD),
+        \           "user":   empty($SQLS_MYSQL_USER) ? $USER : $SQLS_MYSQL_USER,
+        \           "passwd": $SQLS_MYSQL_PASSWD,
         \           "path":   "/run/mysqld/mysqld.sock",
-        \           "dbName": expand($SQLS_MYSQL_DB),
+        \           "dbName": $SQLS_MYSQL_DB,
         \         },
         \       ],
         \     },
