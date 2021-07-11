@@ -1,6 +1,10 @@
+C11
+C89
+C99
 CMake
 config
 configs
+dealbreaker
 dotfile
 dotfiles
 downloadables
@@ -12,8 +16,12 @@ Jorengarenar
 JS
 keypress
 microcontrollers
+MSVC
 MySQL
 RegEx
 SQLite
 VimL
+VLA
+VLA's
+VLAs
 Łukasiewicz

@@ -73,7 +73,7 @@ linking  muttrc            $XDG_CONFIG_HOME/mutt/muttrc
 linking  myclirc           $XDG_CONFIG_HOME/mycli/myclirc
 linking  newsboat/config   $XDG_CONFIG_HOME/newsboat/config
 linking  ranger.conf       $XDG_CONFIG_HOME/ranger/rc.conf
-linking  Renviron          $XDG_CONFIG_HOME/r/Renviron
+linking  Renviron          $XDG_CONFIG_HOME/R/Renviron
 linking  shell/            $XDG_CONFIG_HOME/shell
 linking  ssh_config        $XDG_CONFIG_HOME/ssh/config
 linking  tmux.conf         $XDG_CONFIG_HOME/tmux/tmux.conf
@@ -84,6 +84,7 @@ linking  zathurarc         $XDG_CONFIG_HOME/zathura/zathurarc
 
 linking  ccache.config     $CCACHE_CONFIGPATH
 linking  gpg-agent.conf    $GNUPGHOME/gpg-agent.conf
+linking  grip.py           $GRIPHOME/grip.py
 linking  gtkrc-2.0         ${GTK2_RC_FILES%:*} # link only real gtkrc, omit the one from GTK_THEME
 linking  inputrc           $INPUTRC
 linking  mailcap           $MAILCAP

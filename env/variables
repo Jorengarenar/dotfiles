@@ -75,8 +75,6 @@ export GOPATH="$XDG_DATA_HOME/go"
 export BUNDLE_USER_CACHE="$XDG_CACHE_HOME/bundle"
 export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME/bundle"
 export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME/bundle"
-export GEM_HOME="$XDG_DATA_HOME/gem"
-export GEM_SPEC_CACHE="$XDG_CACHE_HOME/gem"
 
 # Shells etc. {{{3
 export BASH_COMPLETION_USER_FILE="$XDG_CONFIG_HOME/bash/completion"
@@ -143,8 +141,8 @@ pathmunge "$XDG_LOCAL_HOME/bin/scripts"
 
 # Wrappers ("$XDG_LOCAL_HOME/wrappers", ...) are added at the -End-
 
-pathmunge "$GEM_HOME/bin"     # Add gem to PATH
 pathmunge /usr/lib/ccache/bin # Enable ccache by default
+pathmunge $XDG_DATA_HOME/gem/ruby/*/bin
 
 # VITASDK
 export VITASDK=/usr/local/vitasdk

@@ -3,6 +3,5 @@ Type=Application
 Encoding=UTF-8
 Name=NVIDIA Settings
 Comment=Configure NVIDIA X Server Settings
-Exec=/home/joren/.local/bin/_xdg_wrappers/nvidia-settings
+Exec=nvidia-settings
 Icon=/usr/share/pixmaps/nvidia-settings.png
-Categories=__NVIDIA_SETTINGS_DESKTOP_CATEGORIES__
