@@ -9,15 +9,17 @@ let s:blocks = []
 
 function! BlockDiff() abort
   tabnew
+  let l:index = 0
   for block in s:blocks
-    vnew
+    if l:index != 0
+      vnew
+    endif
     call setline(1, block)
     setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
     diffthis
+    let l:index += 1
   endfor
 
-  " wrap to first (empty) buffer and wipe it
-  wincmd w | bwipeout
 endfunction
 
 command! BlockDiffShow     call BlockDiff()
